@@ -4,7 +4,8 @@
   "main": "server.ts",
   "scripts": {
     "dev": "nodemon server.ts",
-    "start": "concurrently \"nodemon server.ts\" \"cd ../client && npm run dev\""
+    "start": "concurrently \"nodemon server.ts\" \"cd ../client && npm run dev\"",
+    "build": "tsc"
   },
   "type": "module",
   "author": "",
