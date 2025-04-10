@@ -7,7 +7,7 @@
     "start": "concurrently \"nodemon server.ts\" \"cd ../client && npm run dev\"",
     "build": "tsc"
   },
-  "type": "module",
+  "type": "commonjs",
   "author": "",
   "license": "ISC",
   "description": "",
