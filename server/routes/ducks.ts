@@ -5,6 +5,6 @@ const duckRouter = express.Router();
 duckRouter.get("/all", getAllDucks);
 // duckRouter.get("/", getDuck)
 
-// duckRouter.post("/", createDuck);
+// duckRouter.post("/", createDuck); need to add more
 
 export default duckRouter;
