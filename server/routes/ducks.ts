@@ -1,10 +1,16 @@
 import express from "express";
-import { getAllDucks } from "../controller/duckController";
+import {
+  createDuck,
+  deleteDuck,
+  ducks,
+  updateDuck,
+} from "../controller/duckController";
 const duckRouter = express.Router();
 
-duckRouter.get("/all", getAllDucks);
-// duckRouter.get("/", getDuck)
-
-// duckRouter.post("/", createDuck); need to add more
+// duckRouter.get("/all", getAllDucks);
+duckRouter.get("/", ducks);
+duckRouter.post("/", createDuck);
+duckRouter.put("/:id", updateDuck);
+duckRouter.delete("/:id", deleteDuck);
 
 export default duckRouter;

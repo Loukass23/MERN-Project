@@ -26,7 +26,8 @@ app.use(
   })
 );
 app.use(cors());
-app.use("/ducks", duckRouter);
+
+app.use("/api/ducks", duckRouter);
 
 app.get("/", (req, res) => {
   res.send("server is running");

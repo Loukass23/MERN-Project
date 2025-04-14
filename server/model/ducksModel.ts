@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
-type DuckType = {
-  id: number;
-  name: string;
-  image: string;
-};
+// type DuckType = {
+//   id: number;
+//   name: string;
+//   image: string;
+// };
 
 const duckSchema = new mongoose.Schema({
   name: {
@@ -16,5 +16,6 @@ const duckSchema = new mongoose.Schema({
     required: true,
   },
 });
-const Duck = mongoose.model<DuckType>("Duck", duckSchema);
+// const Duck = mongoose.model<DuckType>("Duck", duckSchema);
+const Duck = mongoose.model("Duck", duckSchema);
 export default Duck;
