@@ -29,10 +29,10 @@ app.use(cors());
 
 app.use("/api/ducks", duckRouter);
 
-app.get("/", (req, res) => {
-  res.send("server is running");
-});
-app.get("/api", duckRouter);
+// app.get("/", (req, res) => {
+//   res.send("server is running");
+// });
+// app.get("/api", duckRouter);
 const port = process.env.PORT || 8000;
 
 app.listen(port, () => {

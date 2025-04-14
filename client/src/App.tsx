@@ -8,8 +8,9 @@ function App() {
   useEffect(() => {
     const fetchDucks = async () => {
       try {
-        const req = await fetch("http://localhost:8000/ducks/all");
+        const req = await fetch("http://localhost:8000/api/ducks/");
         const res = await req.json();
+        // console.log(res);
         const data = res.ducks as DuckListType;
         setDucks(data);
         console.log("Duckies:", data);

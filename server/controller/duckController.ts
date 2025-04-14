@@ -21,7 +21,7 @@ import { Request, Response } from "express";
 export const ducks = async (req: Request, res: Response) => {
   try {
     const ducks = await Duck.find({});
-    res.status(200).json({ success: true, data: ducks });
+    res.status(200).json({ success: true, ducks: ducks });
   } catch (error) {
     console.log("error in fetching ducks:");
     res.status(500).json({ success: false, message: "Server Error" });
@@ -41,7 +41,7 @@ export const createDuck = async (req: Request, res: Response) => {
   try {
     const newDuck = new Duck(duck);
     await newDuck.save();
-    res.status(201).json({ success: true, data: newDuck });
+    res.status(201).json({ success: true, ducks: newDuck });
   } catch (error) {
     console.log("There was an error while creating your cute ducky");
     res.status(500).json({ success: false, message: "Server Error" });
@@ -58,7 +58,7 @@ export const updateDuck = async (req: Request, res: Response) => {
 
   try {
     const updatedDuck = await Duck.findByIdAndUpdate(id, duck, { new: true });
-    res.status(200).json({ success: true, data: updatedDuck });
+    res.status(200).json({ success: true, ducks: updatedDuck });
   } catch (error) {
     res.status(500).json({ success: false, message: "server error" });
   }
