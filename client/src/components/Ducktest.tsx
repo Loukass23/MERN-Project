@@ -1,5 +1,6 @@
 import duckVideo from "../assets/videos/ducks.mp4";
 import fallbackPNG from "../assets/images/testingduck.png";
+import { Link } from "react-router";
 
 export default function DuckLanding() {
   return (
@@ -32,23 +33,25 @@ export default function DuckLanding() {
           Discover the most beautiful ducks from around the world in our
           feathery collection
         </p>
-        <button className="bg-yellow-400 hover:bg-yellow-300 text-gray-800 font-bold py-2 px-6 sm:py-3 sm:px-8 rounded-full text-base sm:text-lg md:text-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center mx-auto">
-          <span>Explore Ducks</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 sm:h-6 sm:w-6 ml-2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M13 7l5 5m0 0l-5 5m5-5H6"
-            />
-          </svg>
-        </button>
+        <Link to="/ducks" className="inline-block">
+          <button className="bg-yellow-400 hover:bg-yellow-300 text-gray-800 font-bold py-2 px-6 sm:py-3 sm:px-8 rounded-full text-base sm:text-lg md:text-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center mx-auto">
+            <span>Explore Ducks</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 sm:h-6 sm:w-6 ml-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </button>
+        </Link>
       </div>
 
       {/* Water effect at bottom */}
