@@ -1,34 +1,59 @@
 import { Request, Response } from "express";
 import User from "../model/usersModel";
-
-
-
-
-
-
-
+import { encryptPassword, generateToken, verifyPassword } from "../lib/auth";
 
 export const register = async (req: Request, res: Response) => {
-    try {
-        console.log('req.body :>> ', req.body);
-        const { username, email, password } = req.body;
-        const exsistingUser = await UserActivation.findOne({ email });
-        if (exsistingUser) {
-            res.status(400).json({ message: "user already in use" });
-            return;
-        }
-    
-    
-    const hashedPassword = await encryptPassword(password)
+  console.log("Body:", req.body);
 
+  try {
+    const { username, email, password } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      res.status(400).json({ message: "User already exists" });
+      return;
+    }
+    console.log("password", password);
+    const hashedPassword = await encryptPassword(password);
+    console.log("hashedPassword", hashedPassword);
     const user = new User({ username, email, password: hashedPassword });
     await user.save();
 
-    const userId = user._id.toString()
-    const token = generateToken(userId, user.email)
+    const userId = user._id.toString();
+    const token = generateToken(userId, user.email);
     res.status(201).json({
-        message: "user registered successfully", token, user: { id: userId }
+      message: "User registered successfully",
+      token,
+      user: { id: user._id, username, email },
     });
-    } catch (error: any) {
-    res.status(500).json({ message: "error my g" });
-}
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
+    }
+
+    const isMatch = await verifyPassword(password, user.password);
+    if (!isMatch) {
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
+    }
+
+    const userId = user._id.toString();
+    const token = generateToken(userId, user.email);
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user: { id: user._id, username: user.username, email },
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};

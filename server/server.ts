@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import duckRouter from "./routes/ducks";
 import mongoose from "mongoose";
+import authRouter from "./routes/auth";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use(
 app.use(cors());
 
 app.use("/api/ducks", duckRouter);
+app.use("/api/auth", authRouter);
 
 // app.get("/", (req, res) => {
 //   res.send("server is running");
