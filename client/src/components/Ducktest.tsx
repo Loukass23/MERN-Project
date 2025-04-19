@@ -33,7 +33,7 @@ export default function DuckLanding() {
           Discover the most beautiful ducks from around the world in our
           feathery collection
         </p>
-        <Link to="/ducks" className="inline-block">
+        <Link to="/Ducks" className="inline-block">
           <button className="bg-yellow-400 hover:bg-yellow-300 text-gray-800 font-bold py-2 px-6 sm:py-3 sm:px-8 rounded-full text-base sm:text-lg md:text-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center mx-auto">
             <span>Explore Ducks</span>
             <svg
