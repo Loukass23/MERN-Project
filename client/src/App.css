@@ -6,3 +6,22 @@
   padding: 2rem;
   text-align: center;
 } */
+@keyframes feather-drop {
+  0% {
+    transform: translateY(-100px);
+    opacity: 0;
+    animation-timing-function: cubic-bezier(
+      0.12,
+      0.4,
+      0.29,
+      1
+    ); /* Slow start */
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-\[feather-drop_0\.8s\] {
+  animation: feather-drop 0.8s forwards;
+}
