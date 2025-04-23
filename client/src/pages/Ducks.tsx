@@ -27,6 +27,7 @@ function Ducks() {
           <h1 className="text-4xl font-bold text-center text-yellow-400 mb-12">
             Hello Duck Friends!
           </h1>
+          {/* need to update a lot */}
 
           {allDucks.length === 0 ? (
             <div className="text-center text-xl text-gray-500">
