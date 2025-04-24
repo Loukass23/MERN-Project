@@ -29,7 +29,7 @@ app.use(
 app.use(cors());
 
 app.use("/api/ducks", duckRouter);
-app.use("/api/users", userRouter);
+app.use("/api/user", userRouter);
 
 // app.get("/", (req, res) => {
 //   res.send("server is running");
