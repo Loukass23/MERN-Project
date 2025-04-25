@@ -7,7 +7,6 @@ import {
 } from "../controller/duckController";
 const duckRouter = express.Router();
 
-// duckRouter.get("/all", getAllDucks);
 duckRouter.get("/", ducks);
 duckRouter.post("/", createDuck);
 duckRouter.put("/:id", updateDuck);

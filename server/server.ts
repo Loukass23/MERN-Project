@@ -20,14 +20,16 @@ const DBConnection = () => {
 DBConnection();
 const app = express();
 
+// middlewares
+app.use(cors());
 app.use(express.json());
 app.use(
   express.urlencoded({
     extended: true,
   })
 );
-app.use(cors());
 
+// routes
 app.use("/api/ducks", duckRouter);
 app.use("/api/user", userRouter);
 
