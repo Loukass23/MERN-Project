@@ -5,6 +5,7 @@ import {
   ducks,
   updateDuck,
 } from "../controller/duckController";
+import { authMiddleware } from "../middleware/authMiddleware";
 const duckRouter = express.Router();
 
 duckRouter.get("/", ducks);

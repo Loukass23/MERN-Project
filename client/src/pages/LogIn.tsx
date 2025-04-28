@@ -1,6 +1,60 @@
-import { Link } from "react-router";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
 
-function Login() {
+const Login = () => {
+  const [formData, setFormData] = useState({
+    login: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/api/user/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      // Store the token in localStorage
+      localStorage.setItem("token", data.token);
+      // userdata
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirect to dashboard or home page
+      navigate("/");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 to-blue-50 pt-16">
       <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg w-full max-w-md border border-white/20">
@@ -12,8 +66,11 @@ function Login() {
             Quack-quack! Ready to waddle back in?
           </p>
         </div>
+        {error && (
+          <div className="text-red-500 text-sm text-center mt-2">{error}</div>
+        )}
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
             {/* <label
               htmlFor="email"
@@ -26,13 +83,15 @@ function Login() {
                 <span className="text-yellow-500">🐤</span>
               </div>
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="login"
+                name="login"
+                type="text"
+                autoComplete="username"
                 required
                 className="py-2 pl-10 block w-full rounded-full border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-400 bg-white/70"
-                placeholder="Email Address"
+                placeholder="Username"
+                value={formData.login}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -56,6 +115,8 @@ function Login() {
                 required
                 className="py-2 pl-10 block w-full rounded-full border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-400 bg-white/70"
                 placeholder="DuckWord (Password)"
+                value={formData.password}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -87,9 +148,13 @@ function Login() {
 
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition-all duration-300 mt-4"
+            disabled={isLoading}
+            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition-all duration-300 mt-4 ${
+              isLoading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Waddle In <span className="ml-1">→</span>
+            {isLoading ? "Waddling..." : "Waddle In"}{" "}
+            <span className="ml-1">→</span>
           </button>
         </form>
 
@@ -107,6 +172,6 @@ function Login() {
       </div>
     </div>
   );
-}
+};
 
 export default Login;
