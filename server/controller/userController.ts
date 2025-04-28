@@ -111,7 +111,7 @@ export const register = async (req: Request, res: Response) => {
     await user.save();
 
     const userId = user._id.toString();
-    const token = generateToken(userId, user.email);
+    const token = generateToken(userId, user.email, user.username);
 
     res.status(201).json({
       message: "Quack-tastic! You've successfully joined our duck pond!",
@@ -196,7 +196,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const userId = user._id.toString();
-    const token = generateToken(userId, user.email);
+    const token = generateToken(userId, user.email, user.username);
 
     res.status(200).json({
       message: "Quack! Welcome back to the pond!",

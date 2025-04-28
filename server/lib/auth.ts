@@ -32,10 +32,15 @@ export const verifyPassword = async (
 };
 
 // JWT functions (token generation & verification)
-export const generateToken = (userId: string, userEmail: string) => {
+export const generateToken = (
+  userId: string,
+  userEmail: string,
+  userName: string
+) => {
   const payload = {
     sub: userId,
     email: userEmail,
+    username: userName,
   };
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
   return token;

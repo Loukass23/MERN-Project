@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -8,7 +9,7 @@ const Login = () => {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,13 +41,7 @@ const Login = () => {
         throw new Error(data.message || "Login failed");
       }
 
-      // Store the token in localStorage
-      localStorage.setItem("token", data.token);
-      // userdata
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      // Redirect to dashboard or home page
-      navigate("/");
+      login(data.token, data.user);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred"

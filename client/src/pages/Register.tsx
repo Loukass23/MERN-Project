@@ -1,9 +1,71 @@
 import { Link } from "react-router";
 import { useState } from "react";
 import PondPolicyModal from "../components/PondPolicyModal";
+import { useAuth } from "../context/AuthContext";
 
 function Register() {
   const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Duckword don't match quack");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/api/user/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+
+      // Log the user in after registration
+      login(data.token, data.user);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 to-blue-50 pt-16">
@@ -18,14 +80,12 @@ function Register() {
           </p>
         </div>
 
-        <form className="space-y-4">
+        {error && (
+          <div className="text-red-500 text-sm text-center mb-4">{error}</div>
+        )}
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            {/* <label
-              htmlFor="username"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Duck Name
-            </label> */}
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <span className="text-yellow-500">🐥</span>
@@ -38,17 +98,13 @@ function Register() {
                 required
                 className="py-2 pl-10 block w-full rounded-full border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-400 bg-white/70"
                 placeholder="Duck Name"
+                value={formData.username}
+                onChange={handleChange}
               />
             </div>
           </div>
 
           <div>
-            {/* <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label> */}
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <span className="text-yellow-500">✉️</span>
@@ -61,17 +117,13 @@ function Register() {
                 required
                 className="py-2 pl-10 block w-full rounded-full border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-400 bg-white/70"
                 placeholder="Email Address"
+                value={formData.email}
+                onChange={handleChange}
               />
             </div>
           </div>
 
           <div>
-            {/* <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Password
-            </label> */}
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <span className="text-yellow-500">🔒</span>
@@ -84,29 +136,27 @@ function Register() {
                 required
                 className="py-2 pl-10 block w-full rounded-full border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-400 bg-white/70"
                 placeholder="Duckword (Password)"
+                value={formData.password}
+                onChange={handleChange}
               />
             </div>
           </div>
 
           <div>
-            {/* <label
-              htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Confirm Password
-            </label> */}
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <span className="text-yellow-500">🔄</span>
               </div>
               <input
-                id="confirm-password"
-                name="confirm-password"
+                id="confirmPassword"
+                name="confirmPassword"
                 type="password"
                 autoComplete="new-password"
                 required
                 className="py-2 pl-10 block w-full rounded-full border-gray-300 shadow-sm focus:border-yellow-400 focus:ring-yellow-400 bg-white/70"
                 placeholder="Confirm Duckword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -133,9 +183,13 @@ function Register() {
 
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition-all duration-300 mt-4"
+            disabled={isLoading}
+            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition-all duration-300 mt-4 ${
+              isLoading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Join the Flock <span className="ml-1">🦆</span>
+            {isLoading ? "Creating your nest..." : "Join the Flock"}{" "}
+            <span className="ml-1">🦆</span>
           </button>
         </form>
 
