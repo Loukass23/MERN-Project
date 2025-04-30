@@ -124,27 +124,6 @@ export const register = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error("Quack! Registration error:", error);
-
-    if (error instanceof mongoose.Error.ValidationError) {
-      const messages = Object.values(error.errors).map((err) => err.message);
-      res.status(400).json({
-        message: "Quack! There's something wrong with your nest:",
-        details: messages,
-      });
-      return;
-    }
-
-    if (error.code === 11000) {
-      res.status(400).json({
-        message: "Quack! This email or username is already in our pond!",
-      });
-      return;
-    }
-
-    res.status(500).json({
-      message:
-        "Oh no! The ducks messed up something in the pond. Try again later!",
-    });
   }
 };
 

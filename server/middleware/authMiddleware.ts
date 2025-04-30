@@ -28,7 +28,10 @@ export const authMiddleware = async (
     // Verify token
     const decoded = verifyToken(token);
 
-    // TODO if not verified insult user
+    if (!decoded?.sub) {
+      res.status(401).json({ message: "Invalid token payload" });
+      return;
+    }
 
     // Find user by id //
     const user = await User.findById(decoded?.sub).select("-password");

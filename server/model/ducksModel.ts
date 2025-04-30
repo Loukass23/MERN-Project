@@ -1,4 +1,9 @@
 import mongoose from "mongoose";
+import {
+  DUCK_BREEDS,
+  DUCK_GENDERS,
+  DUCK_MOODS,
+} from "../constants/duckOptions";
 
 // type DuckType = {
 //   id: number;
@@ -15,14 +20,15 @@ const duckSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  breed: { type: String },
+  breed: { type: String, enum: DUCK_BREEDS },
   age: { type: Number },
-  gender: { type: String, enum: ["male", "female", "unknown"] },
+  gender: { type: String, enum: DUCK_GENDERS, default: "unknown" },
   caption: { type: String },
   uploadedAt: { type: Date, default: Date.now },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   likes: { type: Number, default: 0 },
-  mood: { type: String },
+  likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  mood: { type: String, enum: DUCK_MOODS },
   isRubberDuck: { type: Boolean, default: false },
 });
 // const Duck = mongoose.model<DuckType>("Duck", duckSchema);

@@ -14,6 +14,7 @@ const userSchema = new Schema(
         "Username can only contain letters, numbers and underscores",
       ],
     },
+
     email: {
       type: String,
       required: [true, "how could you forget the quckmail?"],
@@ -27,9 +28,7 @@ const userSchema = new Schema(
       minlength: [6, "duckword must be at least 6 characters"],
       select: false, // Prevents password from being returned in queries by default
     },
-    passwordChangedAt: Date, // For tracking password changes
-    passwordResetToken: String, // For password reset functionality
-    passwordResetExpires: Date,
+    likedDucks: [{ type: Schema.Types.ObjectId, ref: "Duck" }], // Track ducks this user liked
   },
   {
     timestamps: true,
