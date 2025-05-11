@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import Duck from "../model/ducksModel";
 import User from "../model/usersModel";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 import { Request, Response } from "express";
 import {
   DUCK_BREEDS,
@@ -8,6 +10,31 @@ import {
   DUCK_MOODS,
 } from "../constants/duckOptions";
 
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+}
+
+// Helper function to upload to Cloudinary
+const uploadToCloudinary = async (
+  filePath: string
+): Promise<CloudinaryUploadResult> => {
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: "ducks",
+      resource_type: "auto",
+    });
+    return {
+      secure_url: result.secure_url,
+      public_id: result.public_id,
+    };
+  } catch (error) {
+    console.error("Cloudinary upload error:", error);
+    throw new Error("Failed to upload image to Cloudinary");
+  }
+};
+
+// maybe delete.
 export const getDuckOptions = async (req: Request, res: Response) => {
   try {
     res.status(200).json({
@@ -27,10 +54,51 @@ export const getDuckOptions = async (req: Request, res: Response) => {
 
 export const ducks = async (req: Request, res: Response) => {
   try {
-    const ducks = await Duck.find({}).sort({ uploadedAt: -1 });
-    res.status(200).json({ success: true, ducks: ducks });
+    // Extract query parameters
+    const {
+      sort = "-uploadedAt",
+      breed,
+      gender,
+      isRubberDuck,
+      uploadedBy,
+    } = req.query;
+
+    // Build the filter object
+    const filter: any = {};
+
+    if (breed) filter.breed = breed;
+    if (gender) filter.gender = gender;
+    if (isRubberDuck) filter.isRubberDuck = isRubberDuck === "true";
+    if (uploadedBy) filter.uploadedBy = uploadedBy;
+
+    // Fetch ducks with filters and sorting
+    const ducks = await Duck.find(filter).sort(sort as string);
+
+    res.status(200).json({ success: true, ducks });
   } catch (error) {
-    console.log("error in fetching ducks:", error);
+    console.error("Error fetching ducks:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const getDuckById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(404).json({ success: false, message: "Invalid duck ID" });
+      return;
+    }
+
+    const duck = await Duck.findById(id);
+    if (!duck) {
+      res.status(404).json({ success: false, message: "Duck not found" });
+      return;
+    }
+
+    res.status(200).json({ success: true, duck });
+  } catch (error) {
+    console.error("Error fetching duck:", error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 };
@@ -41,84 +109,189 @@ export const createDuck = async (req: Request, res: Response) => {
     return;
   }
 
+  if (!req.file) {
+    res.status(400).json({ success: false, message: "No image provided" });
+    return;
+  }
+
   const duckData = req.body;
+  const tempFilePath = req.file.path;
 
-  if (!duckData.name || !duckData.image) {
+  // Validate required fields
+  const errors: string[] = [];
+
+  if (!duckData.name?.trim()) {
+    errors.push("Name is a required field");
+  }
+
+  if (!duckData.gender || !DUCK_GENDERS.includes(duckData.gender)) {
+    errors.push(
+      `You need to select a valid gender. Options: ${DUCK_GENDERS.join(", ")}`
+    );
+  }
+
+  if (!duckData.breed || !DUCK_BREEDS.includes(duckData.breed)) {
+    errors.push(
+      `You need to select a valid breed. Options: ${DUCK_BREEDS.join(", ")}`
+    );
+  }
+
+  if (errors.length > 0) {
+    // Clean up temp file if validation fails
+    fs.unlink(tempFilePath, (err) => {
+      if (err) console.error("Error deleting temp file:", err);
+    });
     res.status(400).json({
       success: false,
-      message: "Name and image are required fields",
+      message: errors.join(". "),
     });
     return;
   }
-
-  if (duckData.gender && !DUCK_GENDERS.includes(duckData.gender)) {
-    res.status(400).json({
-      success: false,
-      message: "Invalid gender value",
-    });
-    return;
-  }
-
-  const duck = {
-    ...duckData,
-    likes: 0,
-    likedBy: [],
-    uploadedAt: new Date(),
-    uploadedBy: req.user._id,
-    isRubberDuck: duckData.isRubberDuck || false,
-  };
 
   try {
-    const newDuck = new Duck(duck);
-    await newDuck.save();
-    res.status(201).json({ success: true, duck: newDuck });
-    return;
+    // First upload to Cloudinary
+    const { secure_url, public_id } = await uploadToCloudinary(tempFilePath);
+
+    // Create new duck with the actual image data
+    const duck = new Duck({
+      ...duckData,
+      image: secure_url,
+      imagePublicId: public_id,
+      likes: 0,
+      likedBy: [],
+      uploadedAt: new Date(),
+      uploadedBy: req.user._id,
+      isRubberDuck: duckData.isRubberDuck || false,
+      description: duckData.description || "",
+    });
+
+    await duck.save();
+
+    // Clean up temp file
+    fs.unlink(tempFilePath, (err) => {
+      if (err) console.error("Error deleting temp file:", err);
+    });
+
+    res.status(201).json({ success: true, duck });
   } catch (error) {
-    console.log("Error creating duck:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
-    return;
+    console.error("Error creating duck:", error);
+
+    // Clean up temp file in case of error
+    if (tempFilePath) {
+      fs.unlink(tempFilePath, (err) => {
+        if (err) console.error("Error deleting temp file:", err);
+      });
+    }
+
+    if (error instanceof mongoose.Error.ValidationError) {
+      const messages = Object.values(error.errors).map((err) => err.message);
+      res.status(400).json({
+        success: false,
+        message: messages.join(". "),
+      });
+      return;
+    }
+
+    res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Server Error",
+    });
   }
 };
 
 export const updateDuck = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const duckData = req.body;
+  const tempFilePath = req.file?.path; // Store for cleanup
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     res.status(404).json({ success: false, message: "Invalid duck ID" });
     return;
   }
 
-  if (duckData.gender && !DUCK_GENDERS.includes(duckData.gender)) {
-    res.status(400).json({
-      success: false,
-      message: "Invalid gender value",
-    });
-    return;
-  }
-
   try {
-    if ("likes" in duckData || "likedBy" in duckData) {
-      res.status(400).json({
+    const duck = await Duck.findById(id);
+    if (!duck) {
+      res.status(404).json({ success: false, message: "Duck not found" });
+      return;
+    }
+
+    // Ownership check
+    if (
+      !duck.uploadedBy ||
+      req.user?._id.toString() !== duck.uploadedBy.toString()
+    ) {
+      res.status(403).json({
         success: false,
-        message: "you cant cheat!!! quack",
+        message: "Not authorized to modify this duck",
       });
       return;
     }
 
-    const updatedDuck = await Duck.findByIdAndUpdate(id, duckData, {
-      new: true,
-    });
-    if (!updatedDuck) {
-      res.status(404).json({ success: false, message: "Duck not found" });
+    // First validate all data before any Cloudinary operations
+    if (req.body.name) duck.name = req.body.name;
+    if (req.body.gender) duck.gender = req.body.gender;
+    if (req.body.breed) duck.breed = req.body.breed;
+    if (req.body.description !== undefined)
+      duck.description = req.body.description;
+    if (req.body.isRubberDuck !== undefined) {
+      duck.isRubberDuck = req.body.isRubberDuck === "true";
+    }
+
+    // Validate before any Cloudinary operations
+    await duck.validate();
+
+    // Handle image update only after validation passes
+    if (req.file) {
+      // Upload new image to Cloudinary
+      const { secure_url, public_id } = await uploadToCloudinary(tempFilePath!);
+
+      // Delete old image from Cloudinary if it exists
+      if (duck.imagePublicId) {
+        try {
+          await cloudinary.uploader.destroy(duck.imagePublicId);
+        } catch (err) {
+          console.warn("Failed to delete old image from Cloudinary:", err);
+        }
+      }
+
+      // Update duck with new image
+      duck.image = secure_url;
+      duck.imagePublicId = public_id;
+
+      // Delete local temp file
+      fs.unlink(tempFilePath!, (err) => {
+        if (err) console.error("Error deleting temp file:", err);
+      });
+    }
+
+    // Save changes
+    await duck.save();
+
+    res.status(200).json({ success: true, duck });
+  } catch (error) {
+    console.error("Error updating duck:", error);
+
+    // Cleanup temp file in case of error
+    if (tempFilePath) {
+      fs.unlink(tempFilePath, (err) => {
+        if (err) console.error("Error deleting temp file:", err);
+      });
+    }
+
+    // Handle validation errors specifically
+    if (error instanceof mongoose.Error.ValidationError) {
+      const messages = Object.values(error.errors).map((err) => err.message);
+      res.status(400).json({
+        success: false,
+        message: messages.join(". "),
+      });
       return;
     }
-    res.status(200).json({ success: true, duck: updatedDuck });
-    return;
-  } catch (error) {
-    console.log("Error updating duck:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
-    return;
+
+    res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Server Error",
+    });
   }
 };
 
@@ -131,23 +304,39 @@ export const deleteDuck = async (req: Request, res: Response) => {
   }
 
   try {
-    const deletedDuck = await Duck.findByIdAndDelete(id);
-    if (!deletedDuck) {
+    const duck = await Duck.findById(id);
+    if (!duck) {
       res.status(404).json({ success: false, message: "Duck not found" });
       return;
     }
 
+    // Ownership check
+    if (
+      !duck.uploadedBy ||
+      req.user?._id.toString() !== duck.uploadedBy.toString()
+    ) {
+      res.status(403).json({
+        success: false,
+        message: "Not authorized to delete this duck",
+      });
+      return;
+    }
+
+    // Delete image from Cloudinary if it exists
+    if (duck.imagePublicId) {
+      await cloudinary.uploader.destroy(duck.imagePublicId);
+    }
+
+    await duck.deleteOne();
     await User.updateMany({ likedDucks: id }, { $pull: { likedDucks: id } });
 
     res.status(200).json({
       success: true,
       message: "Duck deleted successfully",
     });
-    return;
   } catch (error) {
-    console.log("Error deleting duck:", error);
+    console.error("Error deleting duck:", error);
     res.status(500).json({ success: false, message: "Server Error" });
-    return;
   }
 };
 
@@ -168,6 +357,18 @@ export const likeDuck = async (req: Request, res: Response) => {
     const duck = await Duck.findById(id);
     if (!duck) {
       res.status(404).json({ success: false, message: "Duck not found" });
+      return;
+    }
+
+    // Add this check to prevent liking own duck
+    if (
+      duck.uploadedBy &&
+      duck.uploadedBy.toString() === req.user._id.toString()
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "You can't like your own duck",
+      });
       return;
     }
 
@@ -288,20 +489,6 @@ export const getUserLikedDucks = async (req: Request, res: Response) => {
     return;
   } catch (error) {
     console.log("Error fetching liked ducks:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
-    return;
-  }
-};
-
-export const getDucksByBreed = async (req: Request, res: Response) => {
-  const { breed } = req.params;
-
-  try {
-    const ducks = await Duck.find({ breed: breed });
-    res.status(200).json({ success: true, ducks: ducks });
-    return;
-  } catch (error) {
-    console.log("Error fetching ducks by breed:", error);
     res.status(500).json({ success: false, message: "Server Error" });
     return;
   }

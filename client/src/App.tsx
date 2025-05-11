@@ -6,7 +6,9 @@ import Ducks from "./pages/Ducks";
 import Login from "./pages/LogIn";
 import Register from "./pages/Register";
 import { AuthContextProvider } from "./context/AuthContext";
-import Profile from "./pages/Profile";
+import DuckDetail from "./pages/DuckDetail";
+import ProfilePage from "./pages/ProfilePage";
+import AuthWrapper from "./components/AuthWrapper";
 
 function App() {
   return (
@@ -14,13 +16,16 @@ function App() {
       <BrowserRouter>
         <AuthContextProvider>
           <Navbar />
-          <Routes>
-            <Route index element={<Homepage />} />
-            <Route path="signup" element={<Register />} />
-            <Route path="ducks" element={<Ducks />} />
-            <Route path="login" element={<Login />} />
-            <Route path="profile" element={<Profile />} />
-          </Routes>
+          <AuthWrapper>
+            <Routes>
+              <Route index element={<Homepage />} />
+              <Route path="signup" element={<Register />} />
+              <Route path="ducks" element={<Ducks />} />
+              <Route path="/ducks/:id" element={<DuckDetail />} />
+              <Route path="login" element={<Login />} />
+              <Route path="/profile/:id" element={<ProfilePage />} />
+            </Routes>
+          </AuthWrapper>
         </AuthContextProvider>
       </BrowserRouter>
     </>

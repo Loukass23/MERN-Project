@@ -2,6 +2,32 @@ import { Request, Response } from "express";
 import User from "../model/usersModel";
 import { encryptPassword, generateToken, verifyPassword } from "../lib/auth";
 import mongoose from "mongoose";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
+
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+}
+// helper function
+const uploadToCloudinary = async (
+  filePath: string,
+  folder: string
+): Promise<CloudinaryUploadResult> => {
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: folder,
+      resource_type: "auto",
+    });
+    return {
+      secure_url: result.secure_url,
+      public_id: result.public_id,
+    };
+  } catch (error) {
+    console.error("Cloudinary upload error:", error);
+    throw new Error("Failed to upload image to Cloudinary");
+  }
+};
 
 export const users = async (req: Request, res: Response) => {
   try {
@@ -17,9 +43,60 @@ export const users = async (req: Request, res: Response) => {
   }
 };
 
-export const register = async (req: Request, res: Response) => {
-  console.log("Request body:", req.body);
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(404).json({ success: false, message: "Invalid user ID" });
+      return;
+    }
+
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({ success: true, user });
+  } catch (error) {
+    console.log("Error fetching user:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ success: false, message: "Not authenticated" });
+      return;
+    }
+
+    const user = await User.findById(req.user._id)
+      .select("-password")
+      .populate("likedDucks");
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      likedDucks: user.likedDucks || [],
+    });
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+export const register = async (req: Request, res: Response) => {
+  if (process.env.NODE_ENV !== "production") {
+    console.log("Request body:", req.body);
+  }
   try {
     const { username, email, password } = req.body;
 
@@ -118,6 +195,7 @@ export const register = async (req: Request, res: Response) => {
       token,
       user: {
         id: user._id,
+        // _id: user._id,
         username,
         email,
       },
@@ -128,8 +206,9 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const login = async (req: Request, res: Response) => {
-  console.log("Login endpoint hit");
-  console.log("Request body:", req.body);
+  if (process.env.NODE_ENV !== "production") {
+    console.log("Request body:", req.body);
+  }
 
   try {
     const { login, password } = req.body;
@@ -199,6 +278,84 @@ export const login = async (req: Request, res: Response) => {
     res.status(500).json({
       message:
         "Oh no! The ducks got their feathers in a twist. Try again later!",
+    });
+  }
+};
+
+export const updateProfilePicture = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Verify the user is updating their own profile
+    if (!req.user || req.user._id.toString() !== id) {
+      res.status(403).json({ success: false, message: "Not authorized" });
+      return;
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      res.status(404).json({ success: false, message: "User not found" });
+      return;
+    }
+
+    // Initialize update object
+    const updates: any = {};
+
+    // Handle bio update
+    if (req.body.bio !== undefined) {
+      updates.bio = req.body.bio;
+    }
+
+    // Handle image update if new file was uploaded
+    if (req.file) {
+      // Upload new image
+      const { secure_url, public_id } = await uploadToCloudinary(
+        req.file.path,
+        "profile-pictures"
+      );
+
+      // Delete old image if it exists
+      if (user.profilePicturePublicId) {
+        await cloudinary.uploader.destroy(user.profilePicturePublicId);
+      }
+
+      // Update image fields
+      updates.profilePicture = secure_url;
+      updates.profilePicturePublicId = public_id;
+
+      // Clean up temp file
+      fs.unlinkSync(req.file.path);
+    }
+
+    // Apply updates
+    const updatedUser = await User.findByIdAndUpdate(id, updates, {
+      new: true,
+    });
+
+    if (!updatedUser) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        _id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        profilePicture: updatedUser.profilePicture,
+        bio: updatedUser.bio,
+        createdAt: updatedUser.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : "Server Error",
     });
   }
 };

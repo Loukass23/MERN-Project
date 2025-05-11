@@ -28,6 +28,20 @@ const userSchema = new Schema(
       minlength: [6, "duckword must be at least 6 characters"],
       select: false, // Prevents password from being returned in queries by default
     },
+    profilePicture: {
+      type: String,
+      default:
+        "https://res.cloudinary.com/df1np6arc/image/upload/v1746890335/duck_by0n5k.png",
+    },
+    profilePicturePublicId: {
+      type: String,
+      default: null,
+    },
+    bio: {
+      type: String,
+      default: "",
+      maxlength: [500, "Bio cannot be longer than 500 characters"],
+    },
     likedDucks: [{ type: Schema.Types.ObjectId, ref: "Duck" }], // Track ducks this user liked
   },
   {

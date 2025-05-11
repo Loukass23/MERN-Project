@@ -1,26 +1,29 @@
 import express from "express";
 import {
+  checkUserLikes,
   createDuck,
   deleteDuck,
   ducks,
+  getDuckById,
   getDuckOptions,
-  getDucksByBreed,
   getUserLikedDucks,
   likeDuck,
   unlikeDuck,
   updateDuck,
 } from "../controller/duckController";
 import { authMiddleware } from "../middleware/authMiddleware";
+import upload from "../middleware/uploadMiddleware";
 const duckRouter = express.Router();
 
 duckRouter.get("/", ducks);
-duckRouter.post("/", authMiddleware, createDuck);
-duckRouter.put("/:id", updateDuck);
-duckRouter.delete("/:id", deleteDuck);
-duckRouter.post("/:id/like", authMiddleware, likeDuck);
-duckRouter.get("/me/liked", authMiddleware, getUserLikedDucks);
-duckRouter.get("/:id/unlike", authMiddleware, unlikeDuck);
-duckRouter.get("/breed/:breed", getDucksByBreed);
 duckRouter.get("/options", getDuckOptions);
+duckRouter.get("/liked", authMiddleware, getUserLikedDucks);
+duckRouter.post("/check-likes", authMiddleware, checkUserLikes); //idk need to fix!
+duckRouter.get("/:id", getDuckById);
+duckRouter.post("/", authMiddleware, upload.single("image"), createDuck);
+duckRouter.put("/:id", authMiddleware, upload.single("image"), updateDuck);
+duckRouter.delete("/:id", authMiddleware, deleteDuck);
+duckRouter.post("/:id/like", authMiddleware, likeDuck);
+duckRouter.post("/:id/unlike", authMiddleware, unlikeDuck);
 
 export default duckRouter;

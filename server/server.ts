@@ -4,8 +4,11 @@ import cors from "cors";
 import duckRouter from "./routes/ducks";
 import mongoose from "mongoose";
 import userRouter from "./routes/user";
+import bodyParser from "body-parser";
+import cloudinaryConfig from "./config/cloudinaryConfiguration";
 
 dotenv.config();
+cloudinaryConfig();
 
 const DBConnection = () => {
   if (process.env.MONGO_URI) {
@@ -22,6 +25,8 @@ const app = express();
 
 // middlewares
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   express.urlencoded({

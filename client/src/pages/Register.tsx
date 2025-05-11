@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { useState } from "react";
-import PondPolicyModal from "../components/PondPolicyModal";
 import { useAuth } from "../context/AuthContext";
+import { Modal } from "../components/Modal";
 
 function Register() {
   const [showModal, setShowModal] = useState(false);
@@ -69,7 +69,26 @@ function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 to-blue-50 pt-16">
-      <PondPolicyModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      {/* Pond Policy Modal */}
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        playQuack={true}
+        className="p-6 max-w-xs text-center"
+      >
+        <p className="text-lg font-medium text-gray-800 mb-2">
+          🦆 <span className="text-yellow-500">Pond Policies</span> 🦆
+        </p>
+        <p className="text-sm text-gray-600">
+          Quack responsibly: Be kind, post ducks, no bread crimes.
+        </p>
+        <button
+          onClick={() => setShowModal(false)}
+          className="mt-4 px-4 py-1 rounded-full bg-yellow-400 text-white text-sm hover:bg-yellow-300 transition-colors"
+        >
+          Understood!
+        </button>
+      </Modal>
       <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg w-full max-w-md border border-white/20">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800 flex items-center justify-center">

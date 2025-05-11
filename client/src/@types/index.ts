@@ -1,14 +1,15 @@
 export type DuckType = {
-  id?: number;
   _id: string;
   name: string;
   image: string;
-  breed: string;
-  mood: string;
-  gender: string;
-  likes: number;
+  gender?: string;
+  breed?: string;
   isRubberDuck: boolean;
+  description?: string;
+  likes: number;
+  likedBy: string[];
   uploadedAt: string;
+  uploadedBy: string;
 };
 
 export type DuckListType = DuckType[];
@@ -29,8 +30,11 @@ export type NewDuckType = {
 };
 
 export type User = {
-  id: string | number;
+  id: string;
+  _id: string;
   username: string;
   email: string;
-  avatar?: string;
+  profilePicture?: string;
+  bio?: string;
+  createdAt: string;
 };

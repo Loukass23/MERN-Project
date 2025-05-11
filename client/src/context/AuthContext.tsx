@@ -14,6 +14,8 @@ interface AuthContextType {
   login: (token: string, userData: any) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  updateUser: (updatedUser: Partial<User>) => void;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -21,6 +23,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +34,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
     }
+    setIsLoading(false);
   }, []);
 
   const login = (newToken: string, userData: User) => {
@@ -49,11 +53,27 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     navigate("/");
   };
 
+  const updateUser = (updatedUser: Partial<User>) => {
+    if (user) {
+      const newUser = { ...user, ...updatedUser };
+      setUser(newUser);
+      localStorage.setItem("user", JSON.stringify(newUser));
+    }
+  };
+
   const isAuthenticated = !!token;
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, logout, isAuthenticated }}
+      value={{
+        user,
+        token,
+        login,
+        logout,
+        isAuthenticated,
+        updateUser,
+        isLoading,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -14,17 +14,22 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
+    "body-parser": "^2.2.0",
+    "cloudinary": "^2.6.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
+    "express-fileupload": "^1.5.1",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.13.2"
+    "mongoose": "^8.13.2",
+    "multer": "^1.4.5-lts.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mongoose": "^5.11.96",
+    "@types/multer": "^1.4.12",
     "@types/node": "^22.14.0",
     "concurrently": "^9.1.2",
     "ts-node": "^10.9.2",
