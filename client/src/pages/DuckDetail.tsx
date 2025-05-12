@@ -83,6 +83,7 @@ export default function DuckDetail() {
                   duckId={duck._id}
                   initialLikes={duck.likes}
                   isAuthenticated={isAuthenticated}
+                  uploadedBy={duck.uploadedBy}
                   className="text-lg"
                 />
               </div>

@@ -5,6 +5,7 @@ import DuckCard from "../components/DuckCard";
 import { DuckListType, User, DuckType, DuckOptions } from "../@types";
 import { useAuth } from "../context/AuthContext";
 import DuckManagementModal from "../components/DuckManagmentModal";
+import ProfilePictureCropper from "../components/CroppingModal";
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +29,8 @@ export default function ProfilePage() {
   const [likedDucks, setLikedDucks] = useState<DuckListType>([]);
   const { user: currentUser, updateUser } = useAuth();
   const navigate = useNavigate();
+  const [showCropper, setShowCropper] = useState(false);
+  const [cropperImage, setCropperImage] = useState("");
 
   const isCurrentUserProfile = currentUser && id && currentUser.id === id;
 
@@ -140,9 +143,23 @@ export default function ProfilePage() {
       return;
     }
 
-    const preview = URL.createObjectURL(file);
-    setPreviewUrl(preview);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropperImage(reader.result as string);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCroppedImage = (blob: Blob) => {
+    const file = new File([blob], "profile-picture.jpg", {
+      type: "image/jpeg",
+    });
     setProfilePictureFile(file);
+
+    const preview = URL.createObjectURL(blob);
+    setPreviewUrl(preview);
+    setShowCropper(false);
   };
 
   const triggerFileInput = () => {
@@ -271,7 +288,7 @@ export default function ProfilePage() {
 
           {/* Profile Content */}
           <div className="px-8 pb-8 relative">
-            {/* Profile Picture - Centered and lifted */}
+            {/* Profile Picture*/}
             <div className="flex justify-center -mt-20 mb-4">
               <div className="relative group">
                 {isCurrentUserProfile && isEditing ? (
@@ -287,18 +304,17 @@ export default function ProfilePage() {
                       onClick={triggerFileInput}
                       className="w-40 h-40 rounded-full border-4 border-white bg-gray-100 flex items-center justify-center cursor-pointer overflow-hidden shadow-lg relative"
                     >
-                      {/* Fixed image display in edit mode */}
                       {previewUrl ? (
                         <img
                           src={previewUrl}
                           alt="Preview"
-                          className="w-full h-full object-contain bg-white"
+                          className="w-full h-full object-cover bg-white"
                         />
                       ) : user.profilePicture ? (
                         <img
                           src={user.profilePicture}
                           alt={user.username}
-                          className="w-full h-full object-contain bg-white"
+                          className="w-full h-full object-cover bg-white"
                         />
                       ) : (
                         <div className="w-full h-full bg-blue-100 flex items-center justify-center">
@@ -318,7 +334,7 @@ export default function ProfilePage() {
                       <img
                         src={user.profilePicture}
                         alt={user.username}
-                        className="w-full h-full object-contain bg-white"
+                        className="w-full h-full object-cover bg-white"
                       />
                     ) : (
                       <div className="w-full h-full bg-blue-100 flex items-center justify-center">
@@ -336,11 +352,7 @@ export default function ProfilePage() {
                 <div>
                   <h1 className="text-3xl font-bold text-gray-800">
                     {user.username}
-                    {/* {isCurrentUserProfile && (
-                      <span className="ml-2 text-blue-500 text-xl">(You)</span>
-                    )} */}
                   </h1>
-                  <p className="text-gray-500">{user.email}</p>
                   <p className="text-sm text-gray-400 mt-1">
                     Member since {new Date(user.createdAt).toLocaleDateString()}
                   </p>
@@ -591,6 +603,15 @@ export default function ProfilePage() {
           }}
           onUpdate={handleUpdateDuck}
           onDelete={handleDeleteDuck}
+        />
+      )}
+
+      {/* Profile Picture Cropper Modal */}
+      {showCropper && (
+        <ProfilePictureCropper
+          src={cropperImage}
+          onSave={handleCroppedImage}
+          onClose={() => setShowCropper(false)}
         />
       )}
     </div>

@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { FunnyModal } from "./FunnyModal";
 
 interface LikeButtonProps {
   duckId: string;
   initialLikes: number;
   isAuthenticated: boolean;
   className?: string;
+  uploadedBy: string; // Add this prop to know who owns the duck
 }
 
 export function LikeButton({
@@ -12,10 +15,14 @@ export function LikeButton({
   initialLikes,
   isAuthenticated,
   className = "",
+  uploadedBy,
 }: LikeButtonProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(initialLikes);
   const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const { user } = useAuth();
 
   useEffect(() => {
     const checkLikeStatus = async () => {
@@ -53,7 +60,22 @@ export function LikeButton({
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated || isLoading) return;
+
+    // Check if user is logged in
+    if (!isAuthenticated) {
+      setModalMessage("You need to log in/register to like this cute duck!");
+      setShowModal(true);
+      return;
+    }
+
+    // Check if user is trying to like their own duck
+    if (user && user.id === uploadedBy) {
+      setModalMessage("You can't like your own ducks!");
+      setShowModal(true);
+      return;
+    }
+
+    if (isLoading) return;
 
     setIsLoading(true);
     try {
@@ -81,26 +103,47 @@ export function LikeButton({
   };
 
   return (
-    <button
-      onClick={handleLike}
-      className={`flex items-center space-x-1 ${className} ${
-        isLiked ? "text-red-500" : "text-gray-400"
-      } ${isLoading ? "opacity-50" : ""}`}
-      disabled={!isAuthenticated || isLoading}
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-5 w-5"
-        viewBox="0 0 20 20"
-        fill="currentColor"
+    <>
+      <button
+        onClick={handleLike}
+        className={`flex items-center space-x-1 ${className} ${
+          isLiked ? "text-red-500" : "text-gray-400"
+        } ${isLoading ? "opacity-50" : ""}`}
+        disabled={isLoading}
       >
-        <path
-          fillRule="evenodd"
-          d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-          clipRule="evenodd"
-        />
-      </svg>
-      <span>{likes}</span>
-    </button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+            clipRule="evenodd"
+          />
+        </svg>
+        <span>{likes}</span>
+      </button>
+
+      <FunnyModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        playQuack={true}
+      >
+        <div className="text-center">
+          <p className="text-lg font-medium text-gray-800 mb-2">
+            🦆 <span className="text-yellow-500">Quack Alert!</span> 🦆
+          </p>
+          <p className="text-sm text-gray-600">{modalMessage}</p>
+          <button
+            onClick={() => setShowModal(false)}
+            className="mt-4 px-4 py-1 rounded-full bg-yellow-400 text-white text-sm hover:bg-yellow-300 transition-colors"
+          >
+            Okay!
+          </button>
+        </div>
+      </FunnyModal>
+    </>
   );
 }
