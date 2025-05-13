@@ -35,6 +35,7 @@ export function FunnyModal({
       audioRef.current.play().catch(console.log);
     }
 
+    // need to fix moving heart
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {

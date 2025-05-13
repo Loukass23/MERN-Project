@@ -38,6 +38,7 @@ export default function DuckManagementModal({
     {}
   );
 
+  // Clean up object URLs
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -175,91 +176,103 @@ export default function DuckManagementModal({
   };
 
   return (
-    <Modal isOpen={true} onClose={onClose}>
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold text-blue-800">Manage Duck</h2>
+    <Modal isOpen={true} onClose={onClose} size="lg">
+      <div className="p-4 md:p-6 max-h-[80vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl md:text-2xl font-bold text-blue-800">
+            {showDeleteConfirm ? "Delete Duck" : "Manage Duck"}
+          </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 text-2xl"
+            aria-label="Close"
           >
-            ✕
+            &times;
           </button>
         </div>
 
-        {error && <ErrorDisplay error={error} className="mb-4" />}
+        {/* Error Display */}
+        {error && <ErrorDisplay error={error} className="mb-6" />}
 
+        {/* Delete Confirmation View */}
         {showDeleteConfirm ? (
-          <div className="text-center py-4">
-            <div className="text-4xl mb-4">🦆</div>
-            <h3 className="text-xl font-bold text-blue-800 mb-2">
-              Are you sure you want to delete {duck.name}?
+          <div className="text-center py-4 md:py-6">
+            <div className="text-5xl mb-4">🦆</div>
+            <h3 className="text-lg md:text-xl font-bold text-blue-800 mb-3">
+              Delete {duck.name}?
             </h3>
-            <p className="text-gray-600 mb-6">
-              This cute ducky will be removed from the pond forever!
+            <p className="text-gray-600 mb-6 md:mb-8">
+              This duck will be removed permanently!
             </p>
-            <div className="flex justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-300"
+                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-300 transition-colors"
               >
-                {isSubmitting ? "Deleting..." : "Yes, Delete"}
+                {isSubmitting ? "Deleting..." : "Confirm Delete"}
               </button>
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <DuckFormFields
-              formData={formData}
-              options={options}
-              onChange={handleChange}
-              errors={fieldErrors}
-            />
-
-            <div>
-              <label className="block text-blue-700 mb-1">Duck Image</label>
-              <ImageUploader
-                previewUrl={previewUrl}
-                onChange={handleFileChange}
-                currentImage={duck.image}
+          /* Edit Duck Form */
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              <DuckFormFields
+                formData={formData}
+                options={options}
+                onChange={handleChange}
+                errors={fieldErrors}
               />
-              <p className="text-sm text-gray-500 mt-1">
-                Leave empty to keep current image
-              </p>
+
+              <div>
+                <label className="block text-blue-700 mb-2">Duck Image</label>
+                <ImageUploader
+                  previewUrl={previewUrl}
+                  onChange={handleFileChange}
+                  currentImage={duck.image}
+                />
+                <p className="text-xs md:text-sm text-gray-500 mt-2">
+                  Leave empty to keep current image
+                </p>
+              </div>
             </div>
 
-            <div className="flex justify-between pt-4">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(true)}
-                className="px-4 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200"
-              >
-                Delete Duck
-              </button>
-              <div className="flex gap-2">
+            {/* Form Actions  */}
+            <div className="pt-6 border-t border-gray-200">
+              <div className="flex flex-col-reverse sm:flex-row justify-between gap-4">
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="px-6 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors w-full sm:w-auto"
                 >
-                  Cancel
+                  Delete Duck
                 </button>
-                <button
-                  type="submit"
-                  disabled={
-                    isSubmitting || Object.values(fieldErrors).some(Boolean)
-                  }
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
-                >
-                  {isSubmitting ? "Saving..." : "Save Changes"}
-                </button>
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="px-6 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition-colors w-full sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={
+                      isSubmitting || Object.values(fieldErrors).some(Boolean)
+                    }
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition-colors w-full sm:w-auto"
+                  >
+                    {isSubmitting ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
               </div>
             </div>
           </form>

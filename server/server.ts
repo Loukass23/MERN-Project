@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import userRouter from "./routes/user";
 import bodyParser from "body-parser";
 import cloudinaryConfig from "./config/cloudinaryConfiguration";
+import commentRouter from "./routes/comments";
 
 dotenv.config();
 cloudinaryConfig();
@@ -37,6 +38,7 @@ app.use(
 // routes
 app.use("/api/ducks", duckRouter);
 app.use("/api/user", userRouter);
+app.use("/api/comments", commentRouter);
 
 // app.get("/", (req, res) => {
 //   res.send("server is running");

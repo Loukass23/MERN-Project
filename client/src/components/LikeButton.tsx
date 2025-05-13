@@ -7,7 +7,7 @@ interface LikeButtonProps {
   initialLikes: number;
   isAuthenticated: boolean;
   className?: string;
-  uploadedBy: string; // Add this prop to know who owns the duck
+  uploadedBy: string;
 }
 
 export function LikeButton({
@@ -61,14 +61,12 @@ export function LikeButton({
     e.preventDefault();
     e.stopPropagation();
 
-    // Check if user is logged in
     if (!isAuthenticated) {
       setModalMessage("You need to log in/register to like this cute duck!");
       setShowModal(true);
       return;
     }
 
-    // Check if user is trying to like their own duck
     if (user && user.id === uploadedBy) {
       setModalMessage("You can't like your own ducks!");
       setShowModal(true);

@@ -84,7 +84,7 @@ export default function DuckDetail() {
                   initialLikes={duck.likes}
                   isAuthenticated={isAuthenticated}
                   uploadedBy={duck.uploadedBy}
-                  className="text-lg"
+                  className="text-lg border border-red-500" // Debug border
                 />
               </div>
             </div>

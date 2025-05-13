@@ -7,6 +7,7 @@ interface ModalProps {
   children: ReactNode;
   className?: string;
   playQuack?: boolean;
+  size?: "sm" | "md" | "lg" | "xl"; //size variants
 }
 
 export function Modal({
@@ -15,6 +16,7 @@ export function Modal({
   children,
   className = "",
   playQuack = false,
+  size = "md", // Default size
 }: ModalProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -42,6 +44,13 @@ export function Modal({
     }
   }, [isOpen, playQuack]);
 
+  const sizeClasses = {
+    sm: "max-w-xs",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-xl",
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -50,7 +59,7 @@ export function Modal({
       onClick={onClose}
     >
       <div
-        className={`animate-[feather-drop_0.8s] bg-white/90 p-6 rounded-2xl shadow-xl max-w-xs border-2 border-yellow-300 ${className}`}
+        className={`animate-[feather-drop_0.8s] bg-white/90 p-6 rounded-2xl shadow-xl ${sizeClasses[size]} w-full mx-4 border-2 border-yellow-300 ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}
