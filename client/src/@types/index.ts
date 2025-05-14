@@ -38,3 +38,26 @@ export type User = {
   bio?: string;
   createdAt: string;
 };
+
+export type CommentType = {
+  _id: string;
+  content: string;
+  duck: string;
+  user: {
+    _id: string;
+    username: string;
+    profilePicture?: string;
+  };
+  likes: number;
+  likedBy: string[];
+  parentComment: string | null;
+  replies: CommentType[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type NewCommentType = {
+  content: string;
+  duckId: string;
+  parentCommentId?: string;
+};

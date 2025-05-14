@@ -1,3 +1,4 @@
+// Update DuckDetail.tsx
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import { useAuth } from "../context/AuthContext";
@@ -7,6 +8,7 @@ import { ErrorDisplay } from "../components/ErrorDisplay";
 import { LikeButton } from "../components/LikeButton";
 import { UploaderInfo } from "../components/UploaderInfo";
 import { RubberDuckBadge } from "../components/RubberDuckBadge";
+import { CommentSection } from "../components/CommentSection";
 
 export default function DuckDetail() {
   const { id } = useParams<{ id: string }>();
@@ -84,7 +86,7 @@ export default function DuckDetail() {
                   initialLikes={duck.likes}
                   isAuthenticated={isAuthenticated}
                   uploadedBy={duck.uploadedBy}
-                  className="text-lg border border-red-500" // Debug border
+                  className="text-lg"
                 />
               </div>
             </div>
@@ -133,6 +135,9 @@ export default function DuckDetail() {
             </div>
           </div>
         </div>
+
+        {/* Comment Section */}
+        <CommentSection duckId={duck._id} />
       </div>
     </div>
   );

@@ -359,3 +359,4 @@ export const updateProfilePicture = async (req: Request, res: Response) => {
     });
   }
 };
+
