@@ -8,7 +8,7 @@ import { ErrorDisplay } from "../components/ErrorDisplay";
 import { LikeButton } from "../components/LikeButton";
 import { UploaderInfo } from "../components/UploaderInfo";
 import { RubberDuckBadge } from "../components/RubberDuckBadge";
-import { CommentSection } from "../components/CommentSection";
+import { CommentSection } from "../components/comments/CommentSection";
 
 export default function DuckDetail() {
   const { id } = useParams<{ id: string }>();

@@ -1,25 +1,16 @@
-// components/CommentItem.tsx
 import { useState } from "react";
 import { Link } from "react-router";
+import { CommentType } from "../../@types";
 
 interface CommentItemProps {
-  comment: {
-    _id: string;
-    content: string;
-    user: {
-      _id: string;
-      username: string;
-      profilePicture?: string;
-    };
-    likes: number;
-    likedBy: string[];
-    createdAt: string;
-  };
-  onLike: (commentId: string, isLiked: boolean) => void;
-  onReply?: (commentId: string) => void; // Made optional
-  onDelete: (commentId: string) => void;
-  onEdit: (commentId: string, newContent: string) => Promise<void>;
+  comment: CommentType;
+  onLike?: (commentId: string, isLiked: boolean) => void;
+  onReply?: (commentId: string) => void;
+  onDelete?: (commentId: string) => void;
+  onEdit?: (commentId: string, newContent: string) => Promise<void>;
   currentUserId?: string;
+  isAuthenticated?: boolean;
+  showAuthModal?: (message: string) => void;
   isReply?: boolean;
 }
 
@@ -30,18 +21,30 @@ export function CommentItem({
   onDelete,
   onEdit,
   currentUserId,
+  isAuthenticated = false,
+  showAuthModal,
   isReply = false,
 }: CommentItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(comment.content);
+
   const isLiked = currentUserId
     ? comment.likedBy.includes(currentUserId)
     : false;
   const isOwner = currentUserId === comment.user._id;
 
   const handleSaveEdit = async () => {
+    if (!onEdit) return;
     await onEdit(comment._id, editedContent);
     setIsEditing(false);
+  };
+
+  const handleReplyClick = () => {
+    if (!isAuthenticated && showAuthModal) {
+      showAuthModal("You need to log in to reply to comments!");
+      return;
+    }
+    onReply?.(comment._id);
   };
 
   return (
@@ -81,7 +84,7 @@ export function CommentItem({
                   Edit
                 </button>
                 <button
-                  onClick={() => onDelete(comment._id)}
+                  onClick={() => onDelete?.(comment._id)}
                   className="text-xs text-red-500 hover:text-red-700"
                 >
                   Delete
@@ -119,7 +122,7 @@ export function CommentItem({
 
           <div className="mt-2 flex items-center space-x-4">
             <button
-              onClick={() => onLike(comment._id, isLiked)}
+              onClick={() => onLike?.(comment._id, isLiked)}
               className={`flex items-center space-x-1 text-sm ${
                 isLiked ? "text-red-500" : "text-gray-500"
               }`}
@@ -138,14 +141,12 @@ export function CommentItem({
               </svg>
               <span>{comment.likes}</span>
             </button>
-            {onReply && (
-              <button
-                onClick={() => onReply(comment._id)}
-                className="text-sm text-blue-600 hover:text-blue-800"
-              >
-                Reply
-              </button>
-            )}
+            <button
+              onClick={handleReplyClick}
+              className="text-sm text-blue-600 hover:text-blue-800"
+            >
+              Reply
+            </button>
           </div>
         </div>
       </div>

@@ -67,20 +67,63 @@ export const createComment = async (req: Request, res: Response) => {
   }
 };
 
+// export const getCommentsForDuck = async (req: Request, res: Response) => {
+//   const { duckId } = req.params;
+
+//   try {
+//     const comments = await Comment.find({ duck: duckId, parentComment: null })
+//       .populate("user", "username profilePicture")
+//       .populate({
+//         path: "replies",
+//         populate: {
+//           path: "user",
+//           select: "username profilePicture",
+//         },
+//       })
+//       .sort({ createdAt: -1 });
+
+//     res.status(200).json({ success: true, comments });
+//   } catch (error) {
+//     console.error("Error fetching comments:", error);
+//     res.status(500).json({ success: false, message: "Server Error" });
+//   }
+// };
+
 export const getCommentsForDuck = async (req: Request, res: Response) => {
   const { duckId } = req.params;
 
   try {
+    // Step 1: Fetch top-level comments (no parent) as plain JS objects
     const comments = await Comment.find({ duck: duckId, parentComment: null })
+      .sort({ createdAt: -1 })
       .populate("user", "username profilePicture")
-      .populate({
-        path: "replies",
-        populate: {
-          path: "user",
-          select: "username profilePicture",
-        },
+      .lean(); // Convert to plain JS objects
+
+    // Step 2: Recursive function to populate replies
+    const populateReplies = async (comment: any) => {
+      if (!comment.replies || comment.replies.length === 0) return comment;
+
+      // Populate replies (convert to plain objects)
+      const populatedReplies = await Comment.find({
+        _id: { $in: comment.replies },
       })
-      .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 }) // <-- Sort replies by newest first
+        .populate("user", "username profilePicture")
+        .lean();
+
+      // Recursively populate nested replies
+      for (const reply of populatedReplies) {
+        await populateReplies(reply);
+      }
+
+      comment.replies = populatedReplies;
+      return comment;
+    };
+
+    // Step 3: Populate replies for each top-level comment
+    for (const comment of comments) {
+      await populateReplies(comment);
+    }
 
     res.status(200).json({ success: true, comments });
   } catch (error) {
