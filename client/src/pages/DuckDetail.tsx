@@ -1,4 +1,3 @@
-// Update DuckDetail.tsx
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import { useAuth } from "../context/AuthContext";

@@ -196,8 +196,10 @@ export function CommentSection({ duckId }: CommentSectionProps) {
   if (error) return <ErrorDisplay error={error} />;
 
   return (
-    <div className="mt-8 max-w-4xl mx-auto bg-white rounded-xl shadow-md p-6">
-      <h2 className="text-2xl font-bold text-blue-900 mb-4">Quack Talk</h2>
+    <div className="mt-8 max-w-4xl mx-auto bg-gradient-to-b from-yellow-50 to-blue-50 rounded-2xl shadow-lg p-6 border-2 border-yellow-200">
+      <h2 className="text-3xl font-bold text-blue-900 mb-4 flex items-center">
+        <span className="mr-2">Quack Talk</span>
+      </h2>
 
       <CommentForm
         onSubmit={handleSubmit}
@@ -210,9 +212,26 @@ export function CommentSection({ duckId }: CommentSectionProps) {
 
       <div className="space-y-4">
         {comments.length === 0 ? (
-          <p className="text-gray-500">
-            No comments yet. Be the first to quack!
-          </p>
+          <div className="text-center py-6">
+            <div className="inline-block bg-yellow-100 p-4 rounded-full mb-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-10 w-10 text-yellow-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                <path
+                  fillRule="evenodd"
+                  d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+            <p className="text-gray-600 font-medium">
+              No comments yet. Be the first to quack!
+            </p>
+          </div>
         ) : (
           comments.map((comment) => (
             <CommentTree
