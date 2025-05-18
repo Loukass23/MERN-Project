@@ -2,32 +2,10 @@ import { Request, Response } from "express";
 import User from "../model/usersModel";
 import { encryptPassword, generateToken, verifyPassword } from "../lib/auth";
 import mongoose from "mongoose";
-import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
 
-interface CloudinaryUploadResult {
-  secure_url: string;
-  public_id: string;
-}
-// helper function
-const uploadToCloudinary = async (
-  filePath: string,
-  folder: string
-): Promise<CloudinaryUploadResult> => {
-  try {
-    const result = await cloudinary.uploader.upload(filePath, {
-      folder: folder,
-      resource_type: "auto",
-    });
-    return {
-      secure_url: result.secure_url,
-      public_id: result.public_id,
-    };
-  } catch (error) {
-    console.error("Cloudinary upload error:", error);
-    throw new Error("Failed to upload image to Cloudinary");
-  }
-};
+import fs from "fs";
+import { pictureUpload } from "../utils/cloudinaryUpload";
+import { pictureDelete } from "../utils/cloudinaryDelete";
 
 export const users = async (req: Request, res: Response) => {
   try {
@@ -195,7 +173,6 @@ export const register = async (req: Request, res: Response) => {
       token,
       user: {
         id: user._id,
-        // _id: user._id,
         username,
         email,
       },
@@ -309,14 +286,14 @@ export const updateProfilePicture = async (req: Request, res: Response) => {
     // Handle image update if new file was uploaded
     if (req.file) {
       // Upload new image
-      const { secure_url, public_id } = await uploadToCloudinary(
+      const { secure_url, public_id } = await pictureUpload(
         req.file.path,
         "profile-pictures"
       );
 
       // Delete old image if it exists
       if (user.profilePicturePublicId) {
-        await cloudinary.uploader.destroy(user.profilePicturePublicId);
+        await pictureDelete(user.profilePicturePublicId);
       }
 
       // Update image fields
@@ -359,4 +336,3 @@ export const updateProfilePicture = async (req: Request, res: Response) => {
     });
   }
 };
-

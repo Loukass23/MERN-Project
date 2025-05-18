@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import Duck from "../model/ducksModel";
 import User from "../model/usersModel";
-import { v2 as cloudinary } from "cloudinary";
+
 import fs from "fs";
 import { Request, Response } from "express";
 import {
@@ -9,32 +9,9 @@ import {
   DUCK_GENDERS,
   DUCK_MOODS,
 } from "../constants/duckOptions";
+import { pictureUpload } from "../utils/cloudinaryUpload";
+import { pictureDelete } from "../utils/cloudinaryDelete";
 
-interface CloudinaryUploadResult {
-  secure_url: string;
-  public_id: string;
-}
-
-// Helper function to upload to Cloudinary
-const uploadToCloudinary = async (
-  filePath: string
-): Promise<CloudinaryUploadResult> => {
-  try {
-    const result = await cloudinary.uploader.upload(filePath, {
-      folder: "ducks",
-      resource_type: "auto",
-    });
-    return {
-      secure_url: result.secure_url,
-      public_id: result.public_id,
-    };
-  } catch (error) {
-    console.error("Cloudinary upload error:", error);
-    throw new Error("Failed to upload image to Cloudinary");
-  }
-};
-
-// maybe delete.
 export const getDuckOptions = async (req: Request, res: Response) => {
   try {
     res.status(200).json({
@@ -150,7 +127,10 @@ export const createDuck = async (req: Request, res: Response) => {
 
   try {
     // First upload to Cloudinary
-    const { secure_url, public_id } = await uploadToCloudinary(tempFilePath);
+    const { secure_url, public_id } = await pictureUpload(
+      tempFilePath,
+      "ducks"
+    );
 
     // Create new duck with the actual image data
     const duck = new Duck({
@@ -243,12 +223,15 @@ export const updateDuck = async (req: Request, res: Response) => {
     // Handle image update only after validation passes
     if (req.file) {
       // Upload new image to Cloudinary
-      const { secure_url, public_id } = await uploadToCloudinary(tempFilePath!);
+      const { secure_url, public_id } = await pictureUpload(
+        tempFilePath!,
+        "ducks"
+      );
 
       // Delete old image from Cloudinary if it exists
       if (duck.imagePublicId) {
         try {
-          await cloudinary.uploader.destroy(duck.imagePublicId);
+          await pictureDelete(duck.imagePublicId);
         } catch (err) {
           console.warn("Failed to delete old image from Cloudinary:", err);
         }
@@ -324,7 +307,7 @@ export const deleteDuck = async (req: Request, res: Response) => {
 
     // Delete image from Cloudinary if it exists
     if (duck.imagePublicId) {
-      await cloudinary.uploader.destroy(duck.imagePublicId);
+      await pictureDelete(duck.imagePublicId);
     }
 
     await duck.deleteOne();

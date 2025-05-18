@@ -67,28 +67,6 @@ export const createComment = async (req: Request, res: Response) => {
   }
 };
 
-// export const getCommentsForDuck = async (req: Request, res: Response) => {
-//   const { duckId } = req.params;
-
-//   try {
-//     const comments = await Comment.find({ duck: duckId, parentComment: null })
-//       .populate("user", "username profilePicture")
-//       .populate({
-//         path: "replies",
-//         populate: {
-//           path: "user",
-//           select: "username profilePicture",
-//         },
-//       })
-//       .sort({ createdAt: -1 });
-
-//     res.status(200).json({ success: true, comments });
-//   } catch (error) {
-//     console.error("Error fetching comments:", error);
-//     res.status(500).json({ success: false, message: "Server Error" });
-//   }
-// };
-
 export const getCommentsForDuck = async (req: Request, res: Response) => {
   const { duckId } = req.params;
 

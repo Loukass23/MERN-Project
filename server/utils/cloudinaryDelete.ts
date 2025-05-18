@@ -6,8 +6,8 @@ const pictureDelete = async (public_id: string) => {
     console.log("deletedImage :>> ", deletedImage);
     return deletedImage;
   } catch (error) {
-    console.log(`Error is => ${error}`);
-    return null;
+    console.error(`Error deleting image from Cloudinary: ${error}`);
+    throw error;
   }
 };
 

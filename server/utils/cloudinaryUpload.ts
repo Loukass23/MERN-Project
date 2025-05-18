@@ -1,14 +1,26 @@
 import { v2 as cloudinary } from "cloudinary";
 
-const pictureUpload = async (filePath: string) => {
+interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+}
+
+const pictureUpload = async (
+  filePath: string,
+  folder: string = "ducks-app"
+): Promise<CloudinaryUploadResult> => {
   try {
     const uploadedImage = await cloudinary.uploader.upload(filePath, {
-      folder: "ducks-app",
+      folder,
+      resource_type: "auto",
     });
-    return uploadedImage;
+    return {
+      secure_url: uploadedImage.secure_url,
+      public_id: uploadedImage.public_id,
+    };
   } catch (error) {
-    console.log(`Error is => ${error}`);
-    return null;
+    console.error(`Error uploading image to Cloudinary: ${error}`);
+    throw error;
   }
 };
 
