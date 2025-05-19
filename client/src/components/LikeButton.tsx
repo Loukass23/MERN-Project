@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { FunnyModal } from "./FunnyModal";
+import { API_ENDPOINTS } from "../config/api";
 
 interface LikeButtonProps {
   duckId: string;
@@ -30,17 +31,14 @@ export function LikeButton({
 
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(
-          "http://localhost:8000/api/ducks/check-likes",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ duckIds: [duckId] }),
-          }
-        );
+        const response = await fetch(API_ENDPOINTS.DUCKS.CHECK_LIKES, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ duckIds: [duckId] }),
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -78,9 +76,10 @@ export function LikeButton({
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const endpoint = isLiked ? "unlike" : "like";
       const response = await fetch(
-        `http://localhost:8000/api/ducks/${duckId}/${endpoint}`,
+        isLiked
+          ? API_ENDPOINTS.DUCKS.UNLIKE(duckId)
+          : API_ENDPOINTS.DUCKS.LIKE(duckId),
         {
           method: "POST",
           headers: {

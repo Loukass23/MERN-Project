@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../context/AuthContext";
+import { API_ENDPOINTS } from "../config/api";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -24,16 +25,13 @@ const Login = () => {
     setError("");
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/user/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
 

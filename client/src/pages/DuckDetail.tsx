@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { DuckType } from "../@types";
 import { LoadingIndicator } from "../components/LoadingIndicator";
@@ -8,13 +8,21 @@ import { LikeButton } from "../components/LikeButton";
 import { UploaderInfo } from "../components/UploaderInfo";
 import { RubberDuckBadge } from "../components/RubberDuckBadge";
 import { CommentSection } from "../components/comments/CommentSection";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function DuckDetail() {
   const { id } = useParams<{ id: string }>();
   const [duck, setDuck] = useState<DuckType | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const [error, setError] = useState("");
   const { isAuthenticated } = useAuth();
+
+  // Early return if id is missing
+  if (!id) {
+    navigate("/");
+    return null;
+  }
 
   useEffect(() => {
     const fetchDuckAndLikeStatus = async () => {
@@ -22,9 +30,7 @@ export default function DuckDetail() {
         setLoading(true);
         setError("");
 
-        const duckResponse = await fetch(
-          `http://localhost:8000/api/ducks/${id}`
-        );
+        const duckResponse = await fetch(API_ENDPOINTS.DUCKS.SINGLE_DUCK(id));
         if (!duckResponse.ok) throw new Error("Duck not found");
         const duckData = await duckResponse.json();
         setDuck(duckData.duck);

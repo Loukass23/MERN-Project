@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import Comment from "../model/commentsModel";
 import Duck from "../model/ducksModel";
-import mongoose from "mongoose";
 
 export const createComment = async (req: Request, res: Response) => {
   if (!req.user) {

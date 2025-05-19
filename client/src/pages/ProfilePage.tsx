@@ -6,6 +6,7 @@ import { DuckListType, User, DuckType, DuckOptions } from "../@types";
 import { useAuth } from "../context/AuthContext";
 import DuckManagementModal from "../components/DuckManagmentModal";
 import ProfilePictureCropper from "../components/CroppingModal";
+import { API_ENDPOINTS } from "../config/api";
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -32,6 +33,11 @@ export default function ProfilePage() {
   const [showCropper, setShowCropper] = useState(false);
   const [cropperImage, setCropperImage] = useState("");
 
+  if (!id) {
+    navigate("/");
+    return null;
+  }
+
   const isCurrentUserProfile = currentUser && id && currentUser.id === id;
 
   useEffect(() => {
@@ -44,14 +50,11 @@ export default function ProfilePage() {
         try {
           setLoading(true);
           const token = localStorage.getItem("token");
-          const response = await fetch(
-            "http://localhost:8000/api/ducks/liked",
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await fetch(API_ENDPOINTS.DUCKS.LIKED, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
 
           if (!response.ok) {
             throw new Error("Failed to fetch liked ducks");
@@ -92,11 +95,9 @@ export default function ProfilePage() {
 
         const [userResponse, ducksResponse, optionsResponse] =
           await Promise.all([
-            fetch(`http://localhost:8000/api/user/${id}`, { headers }),
-            fetch(`http://localhost:8000/api/ducks/?uploadedBy=${id}`, {
-              headers,
-            }),
-            fetch("http://localhost:8000/api/ducks/options", { headers }),
+            fetch(API_ENDPOINTS.AUTH.PROFILE(id), { headers }),
+            fetch(API_ENDPOINTS.DUCKS.BY_USER(id), { headers }),
+            fetch(API_ENDPOINTS.DUCKS.OPTIONS, { headers }),
           ]);
 
         if (!userResponse.ok) {
@@ -180,16 +181,13 @@ export default function ProfilePage() {
         formData.append("bio", bio);
       }
 
-      const response = await fetch(
-        `http://localhost:8000/api/user/${id}/profile`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.AUTH.UPDATE_PROFILE(id), {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();

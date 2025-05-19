@@ -7,6 +7,7 @@ import { CommentForm } from "./CommentForm";
 import { CommentTree } from "./CommentTree";
 import { FunnyModal } from "../FunnyModal";
 import { CommentType } from "../../@types";
+import { API_ENDPOINTS } from "../../config/api";
 
 const API_BASE_URL = "http://localhost:8000/api/comments";
 
@@ -31,7 +32,7 @@ export function CommentSection({ duckId }: CommentSectionProps) {
 
   // Generic API request function
   const makeRequest = async (
-    url: string,
+    endpoint: string,
     method: string,
     body?: object,
     headers?: Record<string, string>
@@ -43,7 +44,7 @@ export function CommentSection({ duckId }: CommentSectionProps) {
       ...headers,
     };
 
-    const response = await fetch(url, {
+    const response = await fetch(endpoint, {
       method,
       headers: defaultHeaders,
       body: body ? JSON.stringify(body) : undefined,
@@ -62,7 +63,10 @@ export function CommentSection({ duckId }: CommentSectionProps) {
       try {
         setLoading(true);
         setError("");
-        const data = await makeRequest(`${API_BASE_URL}/${duckId}`, "GET");
+        const data = await makeRequest(
+          API_ENDPOINTS.COMMENTS.DUCK_COMMENTS(duckId),
+          "GET"
+        );
         setComments(data.comments);
       } catch (err) {
         setError(
@@ -91,9 +95,13 @@ export function CommentSection({ duckId }: CommentSectionProps) {
     if (!checkAuth("post a comment")) return;
 
     try {
-      const data = await makeRequest(`${API_BASE_URL}/${duckId}`, "POST", {
-        content,
-      });
+      const data = await makeRequest(
+        API_ENDPOINTS.COMMENTS.DUCK_COMMENTS(duckId),
+        "POST",
+        {
+          content,
+        }
+      );
       addComment(data.comment);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to post comment");
@@ -122,7 +130,7 @@ export function CommentSection({ duckId }: CommentSectionProps) {
   // Handle comment edit
   const handleEditSubmit = async (commentId: string, newContent: string) => {
     try {
-      await makeRequest(`${API_BASE_URL}/${commentId}`, "PUT", {
+      await makeRequest(API_ENDPOINTS.COMMENTS.COMMENT(commentId), "PUT", {
         content: newContent,
       });
 
@@ -163,8 +171,10 @@ export function CommentSection({ duckId }: CommentSectionProps) {
     }
 
     try {
-      const endpoint = isCurrentlyLiked ? "unlike" : "like";
-      await makeRequest(`${API_BASE_URL}/${commentId}/${endpoint}`, "POST");
+      const endpoint = isCurrentlyLiked
+        ? API_ENDPOINTS.COMMENTS.UNLIKE(commentId)
+        : API_ENDPOINTS.COMMENTS.LIKE(commentId);
+      await makeRequest(endpoint, "POST");
 
       setComments((prev) =>
         updateCommentTree(prev, commentId, (comment) => ({
@@ -185,7 +195,7 @@ export function CommentSection({ duckId }: CommentSectionProps) {
     if (!isAuthenticated || !user) return;
 
     try {
-      await makeRequest(`${API_BASE_URL}/${commentId}`, "DELETE");
+      await makeRequest(API_ENDPOINTS.COMMENTS.COMMENT(commentId), "DELETE");
       setComments((prev) => removeCommentFromTree(prev, commentId));
     } catch (err) {
       console.error("Error deleting comment:", err);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { API_ENDPOINTS } from "../config/api";
 
 interface UploaderInfoProps {
   uploadedBy: string | null;
@@ -18,12 +19,9 @@ export function UploaderInfo({
       try {
         if (uploadedBy) {
           const token = localStorage.getItem("token");
-          const response = await fetch(
-            `http://localhost:8000/api/user/${uploadedBy}`,
-            {
-              headers: token ? { Authorization: `Bearer ${token}` } : {},
-            }
-          );
+          const response = await fetch(API_ENDPOINTS.AUTH.PROFILE(uploadedBy), {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
 
           if (response.ok) {
             const data = await response.json();
@@ -63,8 +61,8 @@ export function UploaderInfo({
       <span className="text-gray-500">Uploaded by </span>
       <Link
         to={`/profile/${uploadedBy}`}
-        onClick={(e) => e.stopPropagation()}
         className="text-blue-600 hover:underline font-medium"
+        onClick={(e) => e.stopPropagation()} // Prevent event bubbling
       >
         {uploaderUsername}
       </Link>

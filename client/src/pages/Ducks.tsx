@@ -6,6 +6,7 @@ import CreateDuckForm from "../components/CreateDuckForm";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import { Modal } from "../components/Modal";
 import quack from "../assets/sounds/quack.mp3";
+import { API_ENDPOINTS } from "../config/api";
 
 function Ducks() {
   const [allDucks, setDucks] = useState<DuckListType>([]);
@@ -45,8 +46,8 @@ function Ducks() {
       try {
         setLoading(true);
         const [optionsRes, ducksRes] = await Promise.all([
-          fetch("http://localhost:8000/api/ducks/options"),
-          fetch(`http://localhost:8000/api/ducks/?sort=-uploadedAt`),
+          fetch(API_ENDPOINTS.DUCKS.OPTIONS),
+          fetch(`${API_ENDPOINTS.DUCKS.BASE}?sort=-uploadedAt`),
         ]);
 
         const [optionsData, ducksData] = await Promise.all([
@@ -82,9 +83,7 @@ function Ducks() {
         if (filters.gender) params.append("gender", filters.gender);
         if (filters.isRubberDuck) params.append("isRubberDuck", "true");
 
-        const response = await fetch(
-          `http://localhost:8000/api/ducks/?${params}`
-        );
+        const response = await fetch(`${API_ENDPOINTS.DUCKS.BASE}?${params}`);
         setDucks((await response.json()).ducks);
       } catch (error) {
         console.error("Error:", error);
@@ -107,7 +106,7 @@ function Ducks() {
     if (filters.gender) params.append("gender", filters.gender);
     if (filters.isRubberDuck) params.append("isRubberDuck", "true");
 
-    const response = await fetch(`http://localhost:8000/api/ducks/?${params}`);
+    const response = await fetch(`${API_ENDPOINTS.DUCKS.BASE}?${params}`);
     setDucks((await response.json()).ducks);
   };
 

@@ -5,6 +5,7 @@ import { Modal } from "./Modal";
 import { ImageUploader } from "./ImageUploader";
 import { DuckFormFields } from "./DuckFormFields";
 import { ErrorDisplay } from "./ErrorDisplay";
+import { API_ENDPOINTS } from "../config/api";
 
 interface DuckManagementModalProps {
   duck: DuckType;
@@ -114,16 +115,13 @@ export default function DuckManagementModal({
         formDataToSend.append("description", formData.description);
       if (imageFile) formDataToSend.append("image", imageFile);
 
-      const response = await fetch(
-        `http://localhost:8000/api/ducks/${duck._id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formDataToSend,
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.DUCKS.SINGLE_DUCK(duck._id), {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formDataToSend,
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -151,15 +149,12 @@ export default function DuckManagementModal({
         return;
       }
 
-      const response = await fetch(
-        `http://localhost:8000/api/ducks/${duck._id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.DUCKS.SINGLE_DUCK(duck._id), {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         const errorData = await response.json();

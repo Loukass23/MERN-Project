@@ -2,6 +2,7 @@ import { useState } from "react";
 import { DuckOptions } from "../@types";
 import { ImageUploader } from "./ImageUploader";
 import { DuckFormFields } from "./DuckFormFields";
+import { API_ENDPOINTS } from "../config/api";
 
 interface CreateDuckFormProps {
   onDuckCreated: () => void;
@@ -77,7 +78,7 @@ export default function CreateDuckForm({
       if (formData.description)
         formDataToSend.append("description", formData.description);
 
-      const response = await fetch("http://localhost:8000/api/ducks/", {
+      const response = await fetch(API_ENDPOINTS.DUCKS.BASE, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

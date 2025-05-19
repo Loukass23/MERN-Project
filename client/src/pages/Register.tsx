@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { Modal } from "../components/Modal";
+import { API_ENDPOINTS } from "../config/api";
 
 function Register() {
   const [showModal, setShowModal] = useState(false);
@@ -35,20 +36,17 @@ function Register() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SERVER_URL}/api/user/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: formData.username,
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.AUTH.REGISTER, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
       const data = await response.json();
 
