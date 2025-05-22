@@ -61,3 +61,15 @@ export type NewCommentType = {
   duckId: string;
   parentCommentId?: string;
 };
+
+export interface PaginatedDuckResponse {
+  ducks: DuckType[];
+  pagination: {
+    totalDucks: number;
+    totalPages: number;
+    currentPage: number;
+    ducksPerPage: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}

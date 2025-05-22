@@ -22,9 +22,7 @@ export const API_ENDPOINTS = {
   COMMENTS: {
     // Get comments for a duck or post a new comment
     DUCK_COMMENTS: (duckId: string) => `${API_BASE_URL}/api/comments/${duckId}`,
-    // Update or delete a specific comment
     COMMENT: (commentId: string) => `${API_BASE_URL}/api/comments/${commentId}`,
-    // Like/unlike a comment
     LIKE: (commentId: string) =>
       `${API_BASE_URL}/api/comments/${commentId}/like`,
     UNLIKE: (commentId: string) =>

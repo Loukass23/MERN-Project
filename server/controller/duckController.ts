@@ -29,6 +29,35 @@ export const getDuckOptions = async (req: Request, res: Response) => {
   return;
 };
 
+// export const ducks = async (req: Request, res: Response) => {
+//   try {
+//     // Extract query parameters
+//     const {
+//       sort = "-uploadedAt",
+//       breed,
+//       gender,
+//       isRubberDuck,
+//       uploadedBy,
+//     } = req.query;
+
+//     // Build the filter object
+//     const filter: any = {};
+
+//     if (breed) filter.breed = breed;
+//     if (gender) filter.gender = gender;
+//     if (isRubberDuck) filter.isRubberDuck = isRubberDuck === "true";
+//     if (uploadedBy) filter.uploadedBy = uploadedBy;
+
+//     // Fetch ducks with filters and sorting
+//     const ducks = await Duck.find(filter).sort(sort as string);
+
+//     res.status(200).json({ success: true, ducks });
+//   } catch (error) {
+//     console.error("Error fetching ducks:", error);
+//     res.status(500).json({ success: false, message: "Server Error" });
+//   }
+// };
+
 export const ducks = async (req: Request, res: Response) => {
   try {
     // Extract query parameters
@@ -38,6 +67,8 @@ export const ducks = async (req: Request, res: Response) => {
       gender,
       isRubberDuck,
       uploadedBy,
+      page = 1,
+      limit = 10,
     } = req.query;
 
     // Build the filter object
@@ -48,10 +79,32 @@ export const ducks = async (req: Request, res: Response) => {
     if (isRubberDuck) filter.isRubberDuck = isRubberDuck === "true";
     if (uploadedBy) filter.uploadedBy = uploadedBy;
 
-    // Fetch ducks with filters and sorting
-    const ducks = await Duck.find(filter).sort(sort as string);
+    // Convert page and limit to numbers
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const skip = (pageNum - 1) * limitNum;
 
-    res.status(200).json({ success: true, ducks });
+    // Get total count of ducks (for pagination info)
+    const totalDucks = await Duck.countDocuments(filter);
+
+    // Fetch ducks with filters, sorting, and pagination
+    const ducks = await Duck.find(filter)
+      .sort(sort as string)
+      .skip(skip)
+      .limit(limitNum);
+
+    res.status(200).json({
+      success: true,
+      ducks,
+      pagination: {
+        totalDucks,
+        totalPages: Math.ceil(totalDucks / limitNum),
+        currentPage: pageNum,
+        ducksPerPage: limitNum,
+        hasNextPage: pageNum * limitNum < totalDucks,
+        hasPreviousPage: pageNum > 1,
+      },
+    });
   } catch (error) {
     console.error("Error fetching ducks:", error);
     res.status(500).json({ success: false, message: "Server Error" });
