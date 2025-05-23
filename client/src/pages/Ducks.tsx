@@ -59,7 +59,7 @@ export default function Ducks() {
 
   const handleFilterChange = (newFilters: any) => {
     setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   const filteredDucks = ducks.filter((duck) =>
@@ -69,35 +69,40 @@ export default function Ducks() {
   );
 
   const PaginationControls = () => (
-    <div className="flex justify-center items-center gap-4 my-8">
+    <motion.div
+      className="flex justify-center items-center gap-4 my-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <button
         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
         disabled={!pagination?.hasPreviousPage}
-        className={`px-4 py-2 rounded-md ${
+        className={`px-4 py-2 rounded-full transition-all ${
           pagination?.hasPreviousPage
-            ? "bg-blue-500 text-white hover:bg-blue-600"
-            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            ? "bg-blue-500 text-white hover:bg-blue-600 shadow-md"
+            : "bg-gray-200 text-gray-500 cursor-not-allowed"
         }`}
       >
         Previous
       </button>
 
-      <span className="text-gray-700">
+      <span className="text-gray-700 font-medium">
         Page {pagination?.currentPage || 1} of {pagination?.totalPages || 1}
       </span>
 
       <button
         onClick={() => setCurrentPage((p) => p + 1)}
         disabled={!pagination?.hasNextPage}
-        className={`px-4 py-2 rounded-md ${
+        className={`px-4 py-2 rounded-full transition-all ${
           pagination?.hasNextPage
-            ? "bg-blue-500 text-white hover:bg-blue-600"
-            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            ? "bg-blue-500 text-white hover:bg-blue-600 shadow-md"
+            : "bg-gray-200 text-gray-500 cursor-not-allowed"
         }`}
       >
         Next
       </button>
-    </div>
+    </motion.div>
   );
 
   if (optionsLoading || ducksLoading) {
@@ -111,37 +116,52 @@ export default function Ducks() {
   if (ducksError) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center p-6 bg-white rounded-xl shadow-lg max-w-md mx-4">
           <div className="text-6xl mb-4">⚠️</div>
           <h3 className="text-xl font-bold text-red-600 mb-2">
             Error loading ducks
           </h3>
-          <p className="text-gray-600">{ducksError}</p>
+          <p className="text-gray-600 mb-4">{ducksError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-12">
       <Modal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)}>
-        <div className="text-center">
+        <div className="text-center p-6">
+          <div className="text-5xl mb-3">🦆</div>
           <p className="text-lg font-medium text-gray-800 mb-2">
-            🦆 <span className="text-yellow-500">Quack Alert!</span> 🦆
+            <span className="text-yellow-500">Quack Alert!</span>
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 mb-6">
             To add your duck to the pond, please login or register first!
           </p>
-          <button
-            onClick={() => setShowLoginPrompt(false)}
-            className="mt-4 px-4 py-1 rounded-full bg-yellow-400 text-white text-sm hover:bg-yellow-300 transition-colors"
-          >
-            Okay!
-          </button>
+          <div className="flex justify-center gap-3">
+            <button
+              onClick={() => setShowLoginPrompt(false)}
+              className="px-4 py-2 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+            >
+              Maybe Later
+            </button>
+            <button
+              onClick={() => (window.location.href = "/login")}
+              className="px-4 py-2 rounded-full bg-yellow-400 text-gray-800 hover:bg-yellow-500 transition-colors"
+            >
+              Login Now
+            </button>
+          </div>
         </div>
       </Modal>
 
-      <div className="container mx-auto pt-24 px-4 py-8">
+      <div className="container mx-auto pt-24 px-4 sm:px-6 lg:px-8">
         <DuckSearchHeader
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -160,11 +180,19 @@ export default function Ducks() {
         />
 
         {showCreateForm && duckOptions && (
-          <CreateDuckForm
-            onDuckCreated={handleDuckCreated}
-            options={duckOptions}
-            onCancel={() => setShowCreateForm(false)}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.3 }}
+            className="mb-8"
+          >
+            <CreateDuckForm
+              onDuckCreated={handleDuckCreated}
+              options={duckOptions}
+              onCancel={() => setShowCreateForm(false)}
+            />
+          </motion.div>
         )}
 
         <AnimatePresence mode="popLayout">
@@ -174,7 +202,8 @@ export default function Ducks() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1.6, ease: "easeInOut" }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+              className="mt-8"
             >
               <NoDucksFound
                 hasFilters={
@@ -191,8 +220,8 @@ export default function Ducks() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.84 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              transition={{ duration: 0.4 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6"
             >
               {filteredDucks.map((duck, index) => (
                 <motion.div
@@ -201,8 +230,8 @@ export default function Ducks() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    delay: index * 0.048,
-                    duration: 0.5,
+                    delay: index * 0.04,
+                    duration: 0.4,
                     ease: "backOut",
                   }}
                 >

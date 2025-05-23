@@ -22,7 +22,7 @@ export function DuckSearchHeader({
 
   useEffect(() => {
     const audioObj = new Audio(quack);
-    audioObj.volume = 0.5;
+    audioObj.volume = 0.3;
     setAudio(audioObj);
     return () => {
       audioObj.pause();
@@ -38,15 +38,15 @@ export function DuckSearchHeader({
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+    <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-8 bg-white p-4 rounded-2xl shadow-sm border border-blue-100">
       {/* Search Input */}
-      <div className="w-full md:flex-1 relative">
+      <div className="flex-1 relative">
         <input
           type="text"
-          placeholder="Search ducks..."
+          placeholder="Search ducks by name, breed or description..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full p-3 pl-10 border-2 border-blue-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-3 pl-10 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 transition-all"
         />
         <svg
           className="absolute left-3 top-3.5 h-5 w-5 text-blue-400"
@@ -64,26 +64,30 @@ export function DuckSearchHeader({
       {/* Create Button */}
       <button
         onClick={handleCreateClick}
-        className="w-full md:w-auto bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-blue-900 font-semibold py-2 px-6 rounded-full shadow-sm hover:shadow-md transition-all duration-200 border border-yellow-600/30 flex items-center justify-center gap-2 group"
+        className="px-5 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-blue-900 font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-yellow-600/30 flex items-center justify-center gap-2 group whitespace-nowrap"
       >
-        <span className="group-hover:scale-110 transition-transform">+</span>
+        <span className="group-hover:scale-110 transition-transform text-lg">
+          +
+        </span>
         <span>Add Duck</span>
-        <span className="group-hover:animate-bounce">🦆</span>
+        <span className="group-hover:animate-bounce transition-transform">
+          🦆
+        </span>
       </button>
 
       {/* Sort Dropdown */}
-      <div className="relative w-full md:w-auto">
+      <div className="relative min-w-[160px]">
         <select
           value={filter}
           onChange={(e) => onFilterChange(e.target.value as any)}
-          className="w-full bg-white border-2 border-blue-300 rounded-full pl-4 pr-8 py-2 text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+          className="w-full bg-white border-2 border-blue-200 rounded-xl pl-4 pr-8 py-3 text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-400 appearance-none transition-all"
         >
           <option value="newest">Newest</option>
           <option value="oldest">Oldest</option>
           <option value="popular">Most Popular</option>
         </select>
         <svg
-          className="absolute right-2 top-2.5 h-4 w-4 text-blue-700 pointer-events-none"
+          className="absolute right-3 top-3.5 h-4 w-4 text-blue-600 pointer-events-none"
           fill="currentColor"
           viewBox="0 0 20 20"
         >

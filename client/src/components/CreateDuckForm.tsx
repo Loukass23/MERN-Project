@@ -3,6 +3,7 @@ import { DuckOptions } from "../@types";
 import { ImageUploader } from "./ImageUploader";
 import { DuckFormFields } from "./DuckFormFields";
 import { API_ENDPOINTS } from "../config/api";
+import { motion } from "framer-motion";
 
 interface CreateDuckFormProps {
   onDuckCreated: () => void;
@@ -92,15 +93,6 @@ export default function CreateDuckForm({
       }
 
       onDuckCreated();
-      setFormData({
-        name: "",
-        gender: "",
-        breed: "",
-        isRubberDuck: false,
-        description: "",
-      });
-      setImageFile(null);
-      setPreviewUrl(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error occurred");
     } finally {
@@ -109,32 +101,46 @@ export default function CreateDuckForm({
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6 transition-all duration-300">
-      <h2 className="text-2xl font-bold text-blue-800 mb-4">
-        Introduce Your Duck
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden p-6 border border-blue-100"
+    >
+      <h2 className="text-2xl font-bold text-blue-800 mb-4 flex items-center gap-2">
+        <span className="bg-blue-100 p-2 rounded-full">🦆</span>
+        <span>Introduce Your Duck</span>
       </h2>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg border border-red-200"
+        >
           {error}
-        </div>
+        </motion.div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-blue-700 mb-1">Duck's Name *</label>
+          <label className="block text-blue-700 mb-1 font-medium">
+            Duck's Name *
+          </label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full p-3 border-2 border-blue-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+            placeholder="e.g. Sir Quacksalot"
           />
         </div>
 
         <div>
-          <label className="block text-blue-700 mb-1">Duck Image *</label>
+          <label className="block text-blue-700 mb-1 font-medium">
+            Duck Image *
+          </label>
           <ImageUploader
             previewUrl={previewUrl}
             onChange={handleFileChange}
@@ -148,23 +154,30 @@ export default function CreateDuckForm({
           onChange={handleChange}
         />
 
-        <div className="flex justify-end space-x-3 pt-2">
+        <div className="flex justify-end space-x-3 pt-4">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50"
+            className="px-4 py-2 border-2 border-blue-500 text-blue-500 rounded-xl hover:bg-blue-50 transition-colors font-medium"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
+            className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-blue-300 transition-colors font-medium shadow-md hover:shadow-lg"
           >
-            {isSubmitting ? "Creating..." : "Add to Pond"}
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <span className="inline-block animate-spin">🌀</span>
+                Creating...
+              </span>
+            ) : (
+              "Add to Pond"
+            )}
           </button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }
