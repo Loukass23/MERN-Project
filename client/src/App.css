@@ -90,3 +90,173 @@
 .card-clickable-area {
   cursor: pointer;
 }
+
+/* Wave Background Styles */
+.wave-background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wave-deep-layer {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(96, 165, 250, 0.05);
+}
+
+.wave-layer-1 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 16rem;
+  background-color: rgba(165, 216, 255, 0.1);
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%23a5d8ff" opacity=".25"/></svg>');
+  background-size: 1200px 200px;
+  background-repeat: repeat-x;
+  background-position: bottom;
+}
+
+.wave-layer-2 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 12rem;
+  background-color: rgba(144, 202, 249, 0.15);
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%2390caf9" opacity=".25"/></svg>');
+  background-size: 1200px 180px;
+  background-repeat: repeat-x;
+  background-position: bottom;
+}
+
+.wave-layer-3 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8rem;
+  background-color: rgba(96, 165, 250, 0.2);
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" fill="%2360a5fa" opacity=".25"/></svg>');
+  background-size: 1200px 150px;
+  background-repeat: repeat-x;
+  background-position: bottom;
+}
+
+/* Pagination Styles */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.pagination-button {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.pagination-button-active {
+  background-color: #3b82f6;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-button-active:hover {
+  background-color: #2563eb;
+}
+
+.pagination-button-disabled {
+  background-color: #e5e7eb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.pagination-page-info {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+/* Duck Grid Styles */
+.ducks-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .ducks-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .ducks-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .ducks-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Modal Content Styles */
+.modal-content {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.modal-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+}
+
+.modal-title {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.modal-message {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-bottom: 1.5rem;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.modal-button {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  transition: background-color 0.3s ease;
+}
+
+.modal-button-secondary {
+  background-color: #e5e7eb;
+  color: #1f2937;
+}
+
+.modal-button-secondary:hover {
+  background-color: #d1d5db;
+}
+
+.modal-button-primary {
+  background-color: #f59e0b;
+  color: #1f2937;
+}
+
+.modal-button-primary:hover {
+  background-color: #d97706;
+}

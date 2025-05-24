@@ -70,7 +70,7 @@ export default function Ducks() {
 
   const PaginationControls = () => (
     <motion.div
-      className="flex justify-center items-center gap-4 my-8"
+      className="pagination-container"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -78,26 +78,26 @@ export default function Ducks() {
       <button
         onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
         disabled={!pagination?.hasPreviousPage}
-        className={`px-4 py-2 rounded-full transition-all ${
+        className={`pagination-button ${
           pagination?.hasPreviousPage
-            ? "bg-blue-500 text-white hover:bg-blue-600 shadow-md"
-            : "bg-gray-200 text-gray-500 cursor-not-allowed"
+            ? "pagination-button-active"
+            : "pagination-button-disabled"
         }`}
       >
         Previous
       </button>
 
-      <span className="text-gray-700 font-medium">
-        Page {pagination?.currentPage || 1} of {pagination?.totalPages || 1}
+      <span className="pagination-page-info">
+        Page {pagination?.currentPage || 1} of {pagination?.totalPages || 1}{" "}
       </span>
 
       <button
         onClick={() => setCurrentPage((p) => p + 1)}
         disabled={!pagination?.hasNextPage}
-        className={`px-4 py-2 rounded-full transition-all ${
+        className={`pagination-button ${
           pagination?.hasNextPage
-            ? "bg-blue-500 text-white hover:bg-blue-600 shadow-md"
-            : "bg-gray-200 text-gray-500 cursor-not-allowed"
+            ? "pagination-button-active"
+            : "pagination-button-disabled"
         }`}
       >
         Next
@@ -134,26 +134,47 @@ export default function Ducks() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-12">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 pb-12 overflow-hidden relative">
+      {/* Wave Background */}
+      <div className="wave-background">
+        <div className="wave-deep-layer"></div>
+        <motion.div
+          className="wave-layer-1"
+          animate={{ backgroundPositionX: ["0%", "100%"] }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="wave-layer-2"
+          animate={{ backgroundPositionX: ["100%", "0%"] }}
+          transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="wave-layer-3"
+          animate={{ backgroundPositionX: ["0%", "100%"] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
+
+      {/* Modal */}
       <Modal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)}>
-        <div className="text-center p-6">
-          <div className="text-5xl mb-3">🦆</div>
-          <p className="text-lg font-medium text-gray-800 mb-2">
+        <div className="modal-content">
+          <div className="modal-icon">🦆</div>
+          <p className="modal-title">
             <span className="text-yellow-500">Quack Alert!</span>
           </p>
-          <p className="text-sm text-gray-600 mb-6">
+          <p className="modal-message">
             To add your duck to the pond, please login or register first!
           </p>
-          <div className="flex justify-center gap-3">
+          <div className="modal-buttons">
             <button
               onClick={() => setShowLoginPrompt(false)}
-              className="px-4 py-2 rounded-full bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors"
+              className="modal-button modal-button-secondary"
             >
               Maybe Later
             </button>
             <button
               onClick={() => (window.location.href = "/login")}
-              className="px-4 py-2 rounded-full bg-yellow-400 text-gray-800 hover:bg-yellow-500 transition-colors"
+              className="modal-button modal-button-primary"
             >
               Login Now
             </button>
@@ -161,7 +182,8 @@ export default function Ducks() {
         </div>
       </Modal>
 
-      <div className="container mx-auto pt-24 px-4 sm:px-6 lg:px-8">
+      {/* Content */}
+      <div className="container mx-auto pt-24 px-4 sm:px-6 lg:px-8 relative z-10">
         <DuckSearchHeader
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -217,11 +239,11 @@ export default function Ducks() {
           ) : (
             <motion.div
               key="ducks-grid"
+              className="ducks-grid"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6"
             >
               {filteredDucks.map((duck, index) => (
                 <motion.div

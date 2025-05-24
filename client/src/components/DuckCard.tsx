@@ -5,7 +5,7 @@ import { UploaderInfo } from "./UploaderInfo";
 import { RubberDuckBadge } from "./RubberDuckBadge";
 import { useAuth } from "../context/AuthContext";
 import { motion, useMotionValue, animate } from "framer-motion";
-import { useEffect, useState, useRef } from "react";
+import { useEffect } from "react";
 
 interface DuckCardProps {
   duck: DuckType;
@@ -14,22 +14,9 @@ interface DuckCardProps {
 
 export default function DuckCard({ duck, className = "" }: DuckCardProps) {
   const { isAuthenticated } = useAuth();
-  const [isClicked, setIsClicked] = useState(false);
-  const [activeBubbles, setActiveBubbles] = useState<number[]>([]);
-  const bubbleIntervalRef = useRef<number | undefined>(undefined);
-  const nextBubbleId = useRef<number>(0);
 
   // Motion values
-  const tiltX = useMotionValue(0);
-  const tiltY = useMotionValue(0);
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
   const floatY = useMotionValue(0);
-
-  const handleClick = () => {
-    setIsClicked(true);
-    setTimeout(() => setIsClicked(false), 1000);
-  };
 
   // Floating animation
   useEffect(() => {
@@ -42,109 +29,13 @@ export default function DuckCard({ duck, className = "" }: DuckCardProps) {
     return () => floatAnimation.stop();
   }, [floatY]);
 
-  //  bubble effect
-  useEffect(() => {
-    //  initial burst
-    const initialBubbles = Array.from(
-      { length: 2 },
-      () => nextBubbleId.current++
-    );
-    setActiveBubbles(initialBubbles);
-
-    // Slower continuous flow
-    bubbleIntervalRef.current = window.setInterval(() => {
-      const newBubbles = Array.from(
-        { length: Math.floor(Math.random() * 1) + 1 }, // 1-2 bubbles at a time
-        () => nextBubbleId.current++
-      );
-      setActiveBubbles((prev) => [...prev.slice(-8), ...newBubbles]); // Max 8 bubbles
-    }, 1500 + Math.random() * 2000); // 1.5-3.5 second intervals
-
-    return () => {
-      if (bubbleIntervalRef.current !== undefined) {
-        window.clearInterval(bubbleIntervalRef.current);
-      }
-    };
-  }, []);
-
-  const removeBubble = (id: number) => {
-    setActiveBubbles((prev) => prev.filter((bubbleId) => bubbleId !== id));
-  };
-
   return (
-    <motion.div
-      className={`relative ${className} w-full max-w-xs`}
-      style={{ perspective: "1000px" }}
-      onClick={handleClick}
-    >
-      {/* Optimized bubble effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-        {activeBubbles.map((bubbleId) => (
-          <motion.span
-            key={bubbleId}
-            className="absolute text-xl"
-            style={{
-              fontSize: `${Math.random() * 15 + 8}px`,
-              left: `${Math.random() * 100}%`,
-              bottom: "0%",
-              zIndex: 10,
-            }}
-            initial={{
-              y: 0,
-              x: 0,
-              opacity: 0,
-              scale: 0.8,
-            }}
-            animate={{
-              y: -80 - Math.random() * 80,
-              x: (Math.random() - 0.5) * 20,
-              opacity: [0, 0.7, 0],
-              scale: [0.8, 1, 0.9],
-            }}
-            transition={{
-              duration: 2 + Math.random(),
-              ease: "easeOut",
-            }}
-            onAnimationComplete={() => removeBubble(bubbleId)}
-          >
-            {Math.random() > 0.8 ? "💧" : "🫧"}
-          </motion.span>
-        ))}
-      </div>
-
-      {/* Click ripple */}
-      {isClicked && (
-        <motion.div
-          className="absolute inset-0 rounded-2xl bg-blue-200 pointer-events-none"
-          initial={{ scale: 0.5, opacity: 0.7 }}
-          animate={{ scale: 2.5, opacity: 0 }}
-          transition={{ duration: 1.5 }}
-        />
-      )}
-
+    <motion.div className={`relative ${className} w-full max-w-xs`}>
       {/* Main card */}
       <motion.div
         className="h-full"
         style={{
-          rotateX,
-          rotateY,
           y: floatY,
-        }}
-        whileHover={{ scale: 1.03 }}
-        onPointerMove={(e) => {
-          const rect = e.currentTarget.getBoundingClientRect();
-          const centerX = rect.left + rect.width / 2;
-          const centerY = rect.top + rect.height / 2;
-
-          tiltX.set(e.clientX - centerX);
-          tiltY.set(e.clientY - centerY);
-
-          rotateX.set((e.clientY - centerY) / 20);
-          rotateY.set((centerX - e.clientX) / 20);
-        }}
-        onPointerLeave={() => {
-          animate(rotateX, 0, { duration: 0.5 });
-          animate(rotateY, 0, { duration: 0.5 });
         }}
       >
         {/* Card container */}
