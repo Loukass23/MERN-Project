@@ -14,11 +14,8 @@ interface DuckCardProps {
 
 export default function DuckCard({ duck, className = "" }: DuckCardProps) {
   const { isAuthenticated } = useAuth();
-
-  // Motion values
   const floatY = useMotionValue(0);
 
-  // Floating animation
   useEffect(() => {
     const floatAnimation = animate(floatY, [0, -10, 0], {
       duration: 3 + Math.random() * 2,
@@ -31,14 +28,7 @@ export default function DuckCard({ duck, className = "" }: DuckCardProps) {
 
   return (
     <motion.div className={`relative ${className} w-full max-w-xs`}>
-      {/* Main card */}
-      <motion.div
-        className="h-full"
-        style={{
-          y: floatY,
-        }}
-      >
-        {/* Card container */}
+      <motion.div className="h-full" style={{ y: floatY }}>
         <motion.div
           className="h-full flex flex-col rounded-3xl overflow-hidden border-2 border-white/30 shadow-2xl backdrop-blur-sm"
           style={{
@@ -50,22 +40,34 @@ export default function DuckCard({ duck, className = "" }: DuckCardProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* Image section */}
+          {/* Image section with visible wave background */}
           <Link to={`/ducks/${duck._id}`} className="block relative group">
-            <div className="relative h-56 w-full overflow-hidden bg-gradient-to-b from-blue-100 to-blue-200 rounded-t-3xl">
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 h-12 bg-blue-300/20 rounded-b-3xl"
-                animate={{ backgroundPosition: ["0% 0%", "100% 100%"] }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                style={{
-                  backgroundImage:
-                    "linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.3) 50%, transparent 75%)",
-                  backgroundSize: "200% 100%",
-                }}
-              />
+            <div className="relative h-56 w-full overflow-hidden rounded-t-3xl bg-blue-100">
+              {/* Wave background container */}
+              <div className="duck-card-wave-bg">
+                <motion.div
+                  className="duck-card-wave-layer duck-card-wave-1"
+                  animate={{ backgroundPositionX: ["0%", "100%"] }}
+                  transition={{
+                    duration: 15,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+                <motion.div
+                  className="duck-card-wave-layer duck-card-wave-2"
+                  animate={{ backgroundPositionX: ["100%", "0%"] }}
+                  transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+              </div>
 
+              {/* Duck image */}
               {duck.image ? (
-                <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="absolute inset-0 flex items-center justify-center p-4 z-10">
                   <motion.img
                     src={duck.image}
                     alt={duck.name}
@@ -83,6 +85,7 @@ export default function DuckCard({ duck, className = "" }: DuckCardProps) {
                 </div>
               )}
 
+              {/* gradient overlay */}
               <motion.div
                 className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-blue-400/30 to-transparent z-0 rounded-b-3xl"
                 animate={{ opacity: [0.3, 0.5, 0.3] }}
@@ -91,7 +94,6 @@ export default function DuckCard({ duck, className = "" }: DuckCardProps) {
             </div>
           </Link>
 
-          {/* Card content */}
           <div className="p-4 flex-1 flex flex-col">
             <div className="flex justify-between items-start mb-2">
               <div>

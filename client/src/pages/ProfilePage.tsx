@@ -11,6 +11,7 @@ import { ErrorDisplay } from "../components/ErrorDisplay";
 import { useProfileData } from "../components/hooks/useProfileData";
 import { useLikedDucks } from "../components/hooks/useLikedDucks";
 import { useProfileEditing } from "../components/hooks/useProfileEditing";
+import { motion } from "framer-motion";
 
 export default function ProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -128,53 +129,93 @@ export default function ProfilePage() {
   };
 
   if (profileLoading) {
-    return <LoadingIndicator text="Loading your profile..." />;
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
+        <LoadingIndicator text="Loading your profile..." />
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <ErrorDisplay
-        error={error}
-        showBackLink={true}
-        className="min-h-screen flex items-center justify-center"
-      />
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
+        <ErrorDisplay
+          error={error}
+          showBackLink={true}
+          className="p-6 bg-white rounded-xl shadow-lg max-w-md mx-4"
+        />
+      </div>
     );
   }
 
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <ProfileHeader
-          user={user}
-          isCurrentUserProfile={isCurrentUserProfile}
-          isEditing={isEditing}
-          bio={bio}
-          previewUrl={
-            profilePictureFile ? URL.createObjectURL(profilePictureFile) : null
-          }
-          onFileChange={handleFileInputChange}
-          onBioChange={setBio}
-          onEditToggle={() => setIsEditing(true)}
-          onSave={handleProfileUpdate}
-          onCancel={() => {
-            cancelEditing();
-            setProfilePictureFile(null);
-          }}
-          loading={updateLoading}
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 pb-12 overflow-hidden relative">
+      {/* Wave Background */}
+      <div className="wave-background">
+        <div className="wave-deep-layer"></div>
+        <motion.div
+          className="wave-layer-1"
+          animate={{ backgroundPositionX: ["0%", "100%"] }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
         />
+        <motion.div
+          className="wave-layer-2"
+          animate={{ backgroundPositionX: ["100%", "0%"] }}
+          transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="wave-layer-3"
+          animate={{ backgroundPositionX: ["0%", "100%"] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
 
-        <ProfileTabs
-          userDucks={userDucks}
-          likedDucks={likedDucks}
-          user={user}
-          isCurrentUserProfile={isCurrentUserProfile}
-          onEditDuck={handleEditDuck}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          isLoading={likedDucksLoading}
-        />
+      <div className="container mx-auto pt-12 px-4 sm:px-6 lg:px-8 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <ProfileHeader
+            user={user}
+            isCurrentUserProfile={isCurrentUserProfile}
+            isEditing={isEditing}
+            bio={bio}
+            previewUrl={
+              profilePictureFile
+                ? URL.createObjectURL(profilePictureFile)
+                : null
+            }
+            onFileChange={handleFileInputChange}
+            onBioChange={setBio}
+            onEditToggle={() => setIsEditing(true)}
+            onSave={handleProfileUpdate}
+            onCancel={() => {
+              cancelEditing();
+              setProfilePictureFile(null);
+            }}
+            loading={updateLoading}
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <ProfileTabs
+            userDucks={userDucks}
+            likedDucks={likedDucks}
+            user={user}
+            isCurrentUserProfile={isCurrentUserProfile}
+            onEditDuck={handleEditDuck}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            isLoading={likedDucksLoading}
+          />
+        </motion.div>
       </div>
 
       {showDuckModal && selectedDuck && duckOptions && (

@@ -6,6 +6,7 @@ import { ImageUploader } from "./ImageUploader";
 import { DuckFormFields } from "./DuckFormFields";
 import { ErrorDisplay } from "./ErrorDisplay";
 import { API_ENDPOINTS } from "../config/api";
+import { motion } from "framer-motion";
 
 interface DuckManagementModalProps {
   duck: DuckType;
@@ -46,16 +47,21 @@ export default function DuckManagementModal({
     };
   }, [previewUrl]);
 
+  // Run initial validation when modal opens
+  useEffect(() => {
+    validateForm();
+  }, []);
+
   const validateField = (name: string, value: string) => {
     switch (name) {
       case "name":
         return value.trim() ? null : "Name is required";
       case "gender":
-        return value && !options.genders.includes(value)
+        return !options.genders.includes(value)
           ? "Please select a valid gender"
           : null;
       case "breed":
-        return value && !options.breeds.includes(value)
+        return !options.breeds.includes(value)
           ? "Please select a valid breed"
           : null;
       case "description":
@@ -67,6 +73,17 @@ export default function DuckManagementModal({
     }
   };
 
+  const validateForm = () => {
+    const errors = {
+      name: validateField("name", formData.name),
+      gender: validateField("gender", formData.gender),
+      breed: validateField("breed", formData.breed),
+      description: validateField("description", formData.description),
+    };
+    setFieldErrors(errors);
+    return !Object.values(errors).some((error) => error !== null);
+  };
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -75,17 +92,16 @@ export default function DuckManagementModal({
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
 
+    const newValue = type === "checkbox" ? checked : value;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: newValue,
     }));
 
     setFieldErrors((prev) => ({
       ...prev,
-      [name]: validateField(
-        name,
-        type === "checkbox" ? String(checked) : value
-      ),
+      [name]: validateField(name, String(newValue)),
     }));
   };
 
@@ -98,6 +114,12 @@ export default function DuckManagementModal({
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
+
+    // Validate entire form before submission
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
@@ -170,17 +192,26 @@ export default function DuckManagementModal({
     }
   };
 
+  const isFormValid = () => {
+    return (
+      formData.name.trim() &&
+      formData.gender &&
+      formData.breed &&
+      !Object.values(fieldErrors).some((error) => error !== null)
+    );
+  };
+
   return (
     <Modal isOpen={true} onClose={onClose} size="lg">
       <div className="p-4 md:p-6 max-h-[80vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-blue-800">
+          <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             {showDeleteConfirm ? "Delete Duck" : "Manage Duck"}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-gray-500 hover:text-gray-700 text-2xl transition-colors"
             aria-label="Close"
           >
             &times;
@@ -192,9 +223,13 @@ export default function DuckManagementModal({
 
         {/* Delete Confirmation View */}
         {showDeleteConfirm ? (
-          <div className="text-center py-4 md:py-6">
+          <motion.div
+            className="text-center py-4 md:py-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
             <div className="text-5xl mb-4">🦆</div>
-            <h3 className="text-lg md:text-xl font-bold text-blue-800 mb-3">
+            <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent mb-3">
               Delete {duck.name}?
             </h3>
             <p className="text-gray-600 mb-6 md:mb-8">
@@ -203,22 +238,27 @@ export default function DuckManagementModal({
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-6 py-2 bg-gray-200 text-gray-800 rounded-full hover:bg-gray-300 transition-all shadow-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isSubmitting}
-                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-300 transition-colors"
+                className="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full hover:from-red-600 hover:to-red-700 transition-all shadow-md hover:shadow-lg disabled:opacity-70"
               >
                 {isSubmitting ? "Deleting..." : "Confirm Delete"}
               </button>
             </div>
-          </div>
+          </motion.div>
         ) : (
           /* Edit Duck Form */
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <motion.form
+            onSubmit={handleSubmit}
+            className="space-y-6"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
             <div className="grid grid-cols-1 gap-6">
               <DuckFormFields
                 formData={formData}
@@ -228,7 +268,9 @@ export default function DuckManagementModal({
               />
 
               <div>
-                <label className="block text-blue-700 mb-2">Duck Image</label>
+                <label className="block text-blue-700 font-medium mb-2">
+                  Duck Image
+                </label>
                 <ImageUploader
                   previewUrl={previewUrl}
                   onChange={handleFileChange}
@@ -240,13 +282,13 @@ export default function DuckManagementModal({
               </div>
             </div>
 
-            {/* Form Actions  */}
+            {/* Form Actions */}
             <div className="pt-6 border-t border-gray-200">
               <div className="flex flex-col-reverse sm:flex-row justify-between gap-4">
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="px-6 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors w-full sm:w-auto"
+                  className="px-6 py-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-all shadow-sm w-full sm:w-auto"
                 >
                   Delete Duck
                 </button>
@@ -254,23 +296,21 @@ export default function DuckManagementModal({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-6 py-2 border border-blue-500 text-blue-500 rounded-lg hover:bg-blue-50 transition-colors w-full sm:w-auto"
+                    className="px-6 py-2 border border-blue-500 text-blue-500 rounded-full hover:bg-blue-50 transition-all shadow-sm w-full sm:w-auto"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    disabled={
-                      isSubmitting || Object.values(fieldErrors).some(Boolean)
-                    }
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-300 transition-colors w-full sm:w-auto"
+                    disabled={isSubmitting || !isFormValid()}
+                    className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 transition-all shadow-md hover:shadow-lg disabled:opacity-70 w-full sm:w-auto"
                   >
                     {isSubmitting ? "Saving..." : "Save Changes"}
                   </button>
                 </div>
               </div>
             </div>
-          </form>
+          </motion.form>
         )}
       </div>
     </Modal>

@@ -27,21 +27,6 @@
   animation: feather-drop 0.8s forwards;
 }
 
-/* @keyframes ripple {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(3);
-    opacity: 0;
-  }
-} */
-/* 
-.animate-ripple {
-  animation: ripple infinite;
-} */
-
 .ripple-container {
   display: flex;
   justify-content: center;
@@ -259,4 +244,106 @@
 
 .modal-button-primary:hover {
   background-color: #d97706;
+}
+
+/* Profile Page Specific Styles */
+.profile-header-gradient {
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+  background-size: 300% 300%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Button Styles */
+.btn-primary {
+  background: linear-gradient(to right, #3b82f6, #6366f1);
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-danger {
+  background: linear-gradient(to right, #ef4444, #ec4899);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(to right, #dc2626, #db2777);
+}
+
+/* Card Styles */
+.card {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+/* Form Styles */
+.form-input {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Modal Overrides */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* Duck Card Wave Background */
+.duck-card-wave-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.duck-card-wave-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background-size: 600px 200px;
+  background-repeat: repeat-x;
+  background-position: bottom;
+}
+
+.duck-card-wave-1 {
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,100 C150,200 350,0 600,100 L600,200 L0,200 Z" fill="%23a5d8ff" opacity="0.3"/></svg>');
+}
+
+.duck-card-wave-2 {
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,120 C150,20 350,220 600,120 L600,200 L0,200 Z" fill="%2390caf9" opacity="0.2"/></svg>');
 }

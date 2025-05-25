@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DuckOptions } from "../@types";
 import { ImageUploader } from "./ImageUploader";
 import { DuckFormFields } from "./DuckFormFields";
@@ -28,6 +28,57 @@ export default function CreateDuckForm({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string | null>>(
+    {
+      name: null,
+      gender: null,
+      breed: null,
+      description: null,
+      image: null,
+    }
+  );
+
+  // Clean up object URLs
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const validateField = (name: string, value: string | File | null) => {
+    switch (name) {
+      case "name":
+        return value ? null : "Name is required";
+      case "gender":
+        return value && !options.genders.includes(value as string)
+          ? "Please select a valid gender"
+          : null;
+      case "breed":
+        return value && !options.breeds.includes(value as string)
+          ? "Please select a valid breed"
+          : null;
+      case "description":
+        return (value as string)?.length > 500
+          ? "Description must be less than 500 characters"
+          : null;
+      case "image":
+        return !value ? "Please select an image for your duck" : null;
+      default:
+        return null;
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {
+      name: validateField("name", formData.name),
+      gender: validateField("gender", formData.gender),
+      breed: validateField("breed", formData.breed),
+      description: validateField("description", formData.description),
+      image: validateField("image", imageFile),
+    };
+    setFieldErrors(errors);
+    return !Object.values(errors).some((error) => error !== null);
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -37,21 +88,38 @@ export default function CreateDuckForm({
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
 
+    const newValue = type === "checkbox" ? checked : value;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: newValue,
+    }));
+
+    setFieldErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, String(newValue)),
     }));
   };
 
   const handleFileChange = (file: File) => {
     setImageFile(file);
     setPreviewUrl(URL.createObjectURL(file));
+    setFieldErrors((prev) => ({
+      ...prev,
+      image: validateField("image", file),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
+
+    // Validate entire form before submission
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const token = localStorage.getItem("token");
@@ -60,18 +128,8 @@ export default function CreateDuckForm({
         return;
       }
 
-      if (!imageFile) {
-        setError("Please select an image for your duck");
-        return;
-      }
-
-      if (!formData.name.trim()) {
-        setError("Please provide a name for your duck");
-        return;
-      }
-
       const formDataToSend = new FormData();
-      formDataToSend.append("image", imageFile);
+      formDataToSend.append("image", imageFile as File);
       formDataToSend.append("name", formData.name);
       if (formData.gender) formDataToSend.append("gender", formData.gender);
       if (formData.breed) formDataToSend.append("breed", formData.breed);
@@ -98,6 +156,14 @@ export default function CreateDuckForm({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.name.trim() &&
+      imageFile &&
+      !Object.values(fieldErrors).some((error) => error !== null)
+    );
   };
 
   return (
@@ -131,27 +197,33 @@ export default function CreateDuckForm({
             name="name"
             value={formData.name}
             onChange={handleChange}
-            required
-            className="w-full p-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+            className={`w-full p-3 border-2 rounded-xl focus:ring-2 transition-all ${
+              fieldErrors.name
+                ? "border-red-500"
+                : "border-blue-200 focus:border-blue-500 focus:ring-blue-200"
+            }`}
             placeholder="e.g. Sir Quacksalot"
           />
+          {fieldErrors.name && (
+            <p className="text-red-500 text-sm mt-1">{fieldErrors.name}</p>
+          )}
         </div>
 
         <div>
           <label className="block text-blue-700 mb-1 font-medium">
             Duck Image *
           </label>
-          <ImageUploader
-            previewUrl={previewUrl}
-            onChange={handleFileChange}
-            required
-          />
+          <ImageUploader previewUrl={previewUrl} onChange={handleFileChange} />
+          {fieldErrors.image && (
+            <p className="text-red-500 text-sm mt-1">{fieldErrors.image}</p>
+          )}
         </div>
 
         <DuckFormFields
           formData={formData}
           options={options}
           onChange={handleChange}
+          errors={fieldErrors}
         />
 
         <div className="flex justify-end space-x-3 pt-4">
@@ -164,7 +236,7 @@ export default function CreateDuckForm({
           </button>
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isFormValid()}
             className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-blue-300 transition-colors font-medium shadow-md hover:shadow-lg"
           >
             {isSubmitting ? (

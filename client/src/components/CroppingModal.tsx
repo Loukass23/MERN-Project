@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import ReactCrop, { Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import { motion } from "framer-motion";
 
 interface ProfilePictureCropperProps {
   src: string;
@@ -41,7 +42,7 @@ const ProfilePictureCropper: React.FC<ProfilePictureCropperProps> = ({
 
     const ctx = canvas.getContext("2d")!;
 
-    // Draw the circular mask
+    // circular mask
     ctx.beginPath();
     ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
     ctx.closePath();
@@ -72,9 +73,15 @@ const ProfilePictureCropper: React.FC<ProfilePictureCropperProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-      <div className="bg-white p-4 rounded-lg max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4">Crop Profile Picture</h2>
-        <div className="mb-4">
+      <motion.div
+        className="bg-white p-6 rounded-2xl shadow-2xl max-w-md w-full"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+      >
+        <h2 className="text-xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          Crop Profile Picture
+        </h2>
+        <div className="mb-6">
           <ReactCrop
             crop={crop}
             onChange={(c) => setCrop(c)}
@@ -86,26 +93,26 @@ const ProfilePictureCropper: React.FC<ProfilePictureCropperProps> = ({
               ref={imageRef}
               src={src}
               alt="Crop preview"
-              className="max-w-full max-h-[60vh]"
+              className="max-w-full max-h-[60vh] rounded-lg"
             />
           </ReactCrop>
         </div>
 
-        <div className="flex gap-2 justify-end">
+        <div className="flex gap-3 justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-300 rounded-md"
+            className="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-all"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full hover:from-blue-600 hover:to-blue-700 transition-all shadow-md"
           >
             Save
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

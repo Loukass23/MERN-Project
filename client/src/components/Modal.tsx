@@ -7,7 +7,7 @@ interface ModalProps {
   children: ReactNode;
   className?: string;
   playQuack?: boolean;
-  size?: "sm" | "md" | "lg" | "xl"; //size variants
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 export function Modal({
@@ -16,7 +16,7 @@ export function Modal({
   children,
   className = "",
   playQuack = false,
-  size = "md", // Default size
+  size = "md",
 }: ModalProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -32,16 +32,18 @@ export function Modal({
   }, [playQuack]);
 
   useEffect(() => {
-    if (isOpen && playQuack && audioRef.current) {
+    if (!isOpen) return;
+
+    if (playQuack && audioRef.current) {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(console.log);
     }
 
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
+    document.body.style.overflow = "hidden";
+
+    return () => {
       document.body.style.overflow = "auto";
-    }
+    };
   }, [isOpen, playQuack]);
 
   const sizeClasses = {

@@ -1,6 +1,7 @@
 import { User } from "../@types";
 import { ProfilePictureEditor } from "./ProfilePictureEditor";
 import { BioEditor } from "./BioEditor";
+import { motion } from "framer-motion";
 
 interface ProfileHeaderProps {
   user: User;
@@ -30,14 +31,33 @@ export function ProfileHeader({
   loading,
 }: ProfileHeaderProps) {
   return (
-    <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-8">
-      {/* Header Background */}
-      <div className="h-40 bg-gradient-to-r from-blue-400 to-blue-600 relative">
-        <div className="absolute inset-0 bg-opacity-10 bg-white"></div>
+    <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8 relative">
+      {/* Wave Background Header */}
+      <div className="h-48 relative overflow-hidden">
+        <div className="absolute inset-0 bg-blue-400/10"></div>
+        <div className="wave-background absolute inset-0">
+          <div className="wave-deep-layer"></div>
+          <motion.div
+            className="wave-layer-1"
+            animate={{ backgroundPositionX: ["0%", "100%"] }}
+            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="wave-layer-2"
+            animate={{ backgroundPositionX: ["100%", "0%"] }}
+            transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div
+            className="wave-layer-3"
+            animate={{ backgroundPositionX: ["0%", "100%"] }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
       </div>
 
       {/* Profile Content */}
-      <div className="px-8 pb-8 relative">
+      <div className="px-6 pb-8 relative">
         {/* Profile Picture */}
         <div className="flex justify-center -mt-20 mb-4">
           <ProfilePictureEditor
@@ -51,32 +71,55 @@ export function ProfileHeader({
 
         {/* Profile Info */}
         <div className="text-center">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">
+              <motion.h1
+                className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
                 {user.username}
-              </h1>
-              <p className="text-sm text-gray-400 mt-1">
+              </motion.h1>
+              <motion.p
+                className="text-sm text-gray-400 mt-1"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+              >
                 Member since {new Date(user.createdAt).toLocaleDateString()}
-              </p>
+              </motion.p>
             </div>
           </div>
 
           {/* Bio Section */}
-          <BioEditor
-            bio={bio}
-            isEditing={isEditing}
-            isCurrentUserProfile={isCurrentUserProfile}
-            onBioChange={onBioChange}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="max-w-2xl mx-auto"
+          >
+            <BioEditor
+              bio={bio}
+              isEditing={isEditing}
+              isCurrentUserProfile={isCurrentUserProfile}
+              onBioChange={onBioChange}
+              username={user.username}
+            />
+          </motion.div>
 
           {/* Edit Controls */}
           {isCurrentUserProfile && (
-            <div className="mt-8 flex justify-center gap-4">
+            <motion.div
+              className="mt-8 flex justify-center gap-4"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
               {!isEditing ? (
                 <button
                   onClick={onEditToggle}
-                  className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+                  className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -92,14 +135,14 @@ export function ProfileHeader({
                 <>
                   <button
                     onClick={onCancel}
-                    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-all shadow-sm"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={onSave}
                     disabled={loading}
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="px-6 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <>
@@ -145,7 +188,7 @@ export function ProfileHeader({
                   </button>
                 </>
               )}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
