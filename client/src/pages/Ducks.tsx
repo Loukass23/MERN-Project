@@ -43,7 +43,7 @@ export default function Ducks() {
     setShowCreateForm(false);
     setCurrentPage(1);
     const response = await fetch(
-      `${API_ENDPOINTS.DUCKS.BASE}?sort=-uploadedAt&page=1&limit=10`
+      `${API_ENDPOINTS.DUCKS.BASE}?sort=-uploadedAt&page=1&limit=12`
     );
     const data: PaginatedDuckResponse = await response.json();
     setDucks(data.ducks);

@@ -31,7 +31,7 @@ const userSchema = new Schema(
     profilePicture: {
       type: String,
       default:
-        "https://res.cloudinary.com/df1np6arc/image/upload/v1746890335/duck_by0n5k.png",
+        "https://res.cloudinary.com/df1np6arc/image/upload/v1748203709/default_jj2hkz.webp",
     },
     profilePicturePublicId: {
       type: String,

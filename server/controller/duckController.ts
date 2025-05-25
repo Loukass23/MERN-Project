@@ -68,7 +68,7 @@ export const ducks = async (req: Request, res: Response) => {
       isRubberDuck,
       uploadedBy,
       page = 1,
-      limit = 10,
+      limit = 12,
     } = req.query;
 
     // Build the filter object

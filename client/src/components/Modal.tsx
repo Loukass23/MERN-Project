@@ -57,11 +57,11 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className={`animate-[feather-drop_0.8s] bg-white/90 p-6 rounded-2xl shadow-xl ${sizeClasses[size]} w-full mx-4 border-2 border-yellow-300 ${className}`}
+        className={`animate-[feather-drop_0.8s] bg-white/90 p-6 rounded-2xl shadow-xl ${sizeClasses[size]} w-full mx-4 border-2 border-blue-300/80 ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}

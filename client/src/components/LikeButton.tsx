@@ -130,12 +130,12 @@ export function LikeButton({
       >
         <div className="text-center">
           <p className="text-lg font-medium text-gray-800 mb-2">
-            🦆 <span className="text-yellow-500">Quack Alert!</span> 🦆
+            🦆 <span className="text-blue-500">Quack Alert!</span> 🦆
           </p>
           <p className="text-sm text-gray-600">{modalMessage}</p>
           <button
             onClick={() => setShowModal(false)}
-            className="mt-4 px-4 py-1 rounded-full bg-yellow-400 text-white text-sm hover:bg-yellow-300 transition-colors"
+            className="mt-4 px-4 py-1 rounded-full bg-blue-400 text-white text-sm hover:bg-blue-300 transition-colors"
           >
             Okay!
           </button>

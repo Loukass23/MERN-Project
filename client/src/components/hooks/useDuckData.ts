@@ -10,7 +10,7 @@ export function useDucksData(filter: string, filters: any, page: number = 1) {
     totalDucks: 0,
     totalPages: 0,
     currentPage: 1,
-    ducksPerPage: 10,
+    ducksPerPage: 12,
     hasNextPage: false,
     hasPreviousPage: false,
   });
@@ -31,7 +31,7 @@ export function useDucksData(filter: string, filters: any, page: number = 1) {
         const params = new URLSearchParams({
           sort: sortParam,
           page: page.toString(),
-          limit: "10", // Fixed to 10 per page
+          limit: "12", // Fixed to 10 per page
         });
 
         if (filters.breed) params.append("breed", filters.breed);
