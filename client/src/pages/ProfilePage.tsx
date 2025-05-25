@@ -151,7 +151,7 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 pb-12 overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-blue-100 pt-8 pb-12 overflow-hidden relative">
       {/* Wave Background */}
       <div className="wave-background">
         <div className="wave-deep-layer"></div>

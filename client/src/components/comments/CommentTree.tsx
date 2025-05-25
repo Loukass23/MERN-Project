@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ReplyForm } from "./ReplyForm";
 import { CommentItem } from "./CommentItem";
 import { CommentType } from "../../@types";
+import { motion } from "motion/react";
 
 interface CommentTreeProps {
   comment: CommentType;
@@ -28,14 +29,14 @@ export function CommentTree({
 }: CommentTreeProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showReplies, setShowReplies] = useState(false); // Changed to false to collapse by default
+  const [showReplies, setShowReplies] = useState(depth < 2); // Show first 2 levels by default
 
   const handleReplySubmit = async (content: string) => {
     setIsSubmitting(true);
     try {
       await onReply(comment._id, content);
       setReplyingTo(null);
-      setShowReplies(true); // Automatically show replies after submitting a new one
+      setShowReplies(true);
     } catch (error) {
       // Error handled in CommentSection
     } finally {
@@ -51,7 +52,9 @@ export function CommentTree({
 
   return (
     <div
-      className={depth > 0 ? "ml-8 mt-2 pl-4 border-l-2 border-gray-200" : ""}
+      className={
+        depth > 0 ? "ml-4 sm:ml-8 mt-3 pl-4 border-l-2 border-blue-100" : ""
+      }
     >
       <CommentItem
         comment={comment}
@@ -66,25 +69,31 @@ export function CommentTree({
       />
 
       {replyingTo === comment._id && (
-        <ReplyForm
-          onSubmit={handleReplySubmit}
-          onCancel={() => setReplyingTo(null)}
-          isSubmitting={isSubmitting}
-        />
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <ReplyForm
+            onSubmit={handleReplySubmit}
+            onCancel={() => setReplyingTo(null)}
+            isSubmitting={isSubmitting}
+          />
+        </motion.div>
       )}
 
       {hasReplies && (
         <button
           onClick={toggleReplies}
-          className="ml-12 mt-2 text-sm font-medium text-yellow-700 hover:text-yellow-800 flex items-center focus:outline-none bg-yellow-100 px-3 py-1 rounded-full transition-all"
+          className="ml-12 mt-2 text-sm font-medium text-blue-700 hover:text-blue-800 flex items-center focus:outline-none bg-blue-50 px-3 py-1 rounded-full transition-all"
           aria-expanded={showReplies}
-          aria-controls={`replies-${comment._id}`}
         >
           {showReplies ? (
             <>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-1 transform rotate-180"
+                className="h-4 w-4 mr-1"
                 viewBox="0 0 20 20"
                 fill="currentColor"
               >
@@ -94,7 +103,7 @@ export function CommentTree({
                   clipRule="evenodd"
                 />
               </svg>
-              Hide quacks
+              Hide replies
             </>
           ) : (
             <>
@@ -110,14 +119,14 @@ export function CommentTree({
                   clipRule="evenodd"
                 />
               </svg>
-              Show quacks ({comment.replies.length})
+              Show replies ({comment.replies.length})
             </>
           )}
         </button>
       )}
 
       {showReplies && hasReplies && (
-        <div id={`replies-${comment._id}`} className="space-y-3">
+        <div className="space-y-3 mt-2">
           {comment.replies.map((reply) => (
             <CommentTree
               key={reply._id}

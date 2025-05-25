@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { CommentType } from "../../@types";
+import { motion } from "motion/react";
 
 interface CommentItemProps {
   comment: CommentType;
@@ -59,13 +60,22 @@ export function CommentItem({
     onLike?.(comment._id, isLiked);
   };
 
+  const handleEditChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (e.target.value.length <= 300) {
+      setEditedContent(e.target.value);
+    }
+  };
+
   return (
-    <div
-      className={`bg-white p-4 rounded-xl shadow-sm ${
-        isReply ? "border-l-4 border-yellow-300" : ""
+    <motion.div
+      className={`bg-white p-5 rounded-2xl shadow-md ${
+        isReply ? "border-l-4 border-blue-300 ml-4 sm:ml-8" : ""
       }`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="flex items-start space-x-3">
+      <div className="flex items-start gap-4">
         <Link
           to={`/profile/${comment.user._id}`}
           className="flex-shrink-0 hover:opacity-80 transition-opacity"
@@ -73,11 +83,11 @@ export function CommentItem({
           <img
             src={comment.user.profilePicture || "/default-profile.png"}
             alt={comment.user.username}
-            className="h-12 w-12 rounded-full object-cover border-2 border-yellow-300"
+            className="h-12 w-12 rounded-full object-cover border-2 border-blue-200"
           />
         </Link>
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <Link
                 to={`/profile/${comment.user._id}`}
@@ -85,21 +95,21 @@ export function CommentItem({
               >
                 {comment.user.username}
               </Link>
-              <span className="ml-2 text-xs text-gray-500">
+              <span className="text-xs text-gray-500 ml-1">
                 {new Date(comment.createdAt).toLocaleString()}
               </span>
             </div>
             {isOwner && (
-              <div className="space-x-2">
+              <div className="flex gap-2">
                 <button
                   onClick={() => setIsEditing(!isEditing)}
-                  className="text-xs text-blue-500 hover:text-blue-700 bg-blue-50 px-2 py-1 rounded"
+                  className="text-xs text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1 rounded-full"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => onDelete?.(comment._id)}
-                  className="text-xs text-red-500 hover:text-red-700 bg-red-50 px-2 py-1 rounded"
+                  className="text-xs text-red-600 hover:text-red-800 bg-red-50 px-3 py-1 rounded-full"
                 >
                   Delete
                 </button>
@@ -108,39 +118,55 @@ export function CommentItem({
           </div>
 
           {isEditing ? (
-            <div className="mt-2">
+            <div className="mt-3">
               <textarea
                 value={editedContent}
-                onChange={(e) => setEditedContent(e.target.value)}
-                className="w-full border-2 border-yellow-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-300"
+                onChange={handleEditChange}
+                className="w-full min-h-[100px] border-2 border-blue-200 rounded-xl p-3 focus:ring-2 focus:ring-blue-300 resize-y"
                 rows={3}
+                maxLength={300}
               />
-              <div className="mt-2 space-x-2">
-                <button
-                  onClick={handleSaveEdit}
-                  className="px-3 py-1 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-lg text-sm"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="px-3 py-1 bg-gray-100 rounded-lg text-sm"
-                >
-                  Cancel
-                </button>
+              <div className="flex justify-between items-center mt-2">
+                <div className="text-xs text-gray-500">
+                  {editedContent.length}/300
+                  {editedContent.length > 250 && (
+                    <span className="text-red-500 ml-1">
+                      ({300 - editedContent.length} left)
+                    </span>
+                  )}
+                </div>
+                <div className="space-x-2">
+                  <button
+                    onClick={handleSaveEdit}
+                    disabled={!editedContent.trim()}
+                    className="px-4 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-sm disabled:opacity-50"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="px-4 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
-            <p className="mt-1 text-gray-700">{comment.content}</p>
+            <div className="mt-2">
+              <p className="text-gray-700 whitespace-pre-wrap break-words overflow-hidden">
+                {comment.content}
+              </p>
+            </div>
           )}
 
-          <div className="mt-3 flex items-center space-x-4">
+          <div className="mt-4 flex items-center gap-4">
             <button
               onClick={handleLikeClick}
-              className={`flex items-center space-x-1 text-sm px-2 py-1 rounded-lg ${
+              className={`flex items-center gap-1 text-sm px-3 py-1 rounded-full ${
                 isLiked
-                  ? "bg-red-50 text-red-500"
-                  : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                  ? "bg-red-50 text-red-600"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
               <svg
@@ -159,7 +185,7 @@ export function CommentItem({
             </button>
             <button
               onClick={handleReplyClick}
-              className="text-sm text-blue-600 hover:text-blue-800 bg-blue-50 px-2 py-1 rounded-lg flex items-center"
+              className="text-sm text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1 rounded-full flex items-center"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -178,6 +204,6 @@ export function CommentItem({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

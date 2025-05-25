@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { motion } from "motion/react";
 
 interface CommentFormProps {
   onSubmit: (content: string) => void;
@@ -31,47 +32,58 @@ export function CommentForm({
     setNewComment("");
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="mb-6 relative">
-      {/* Duck decoration */}
-      <div className="absolute -left-10 top-3">
-        <div className="relative"></div>
-      </div>
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (e.target.value.length <= 300) {
+      setNewComment(e.target.value);
+    }
+  };
 
-      <div className="flex items-start space-x-3">
-        <div className="flex-1 relative">
+  return (
+    <motion.form
+      onSubmit={handleSubmit}
+      className="mb-6 relative"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex flex-col sm:flex-row items-start gap-4">
+        <div className="flex-1 relative w-full">
           <textarea
             value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
+            onChange={handleCommentChange}
             placeholder="What's on your mind? Quack about it..."
-            className={`w-full border-2 ${
-              isFocused ? "border-yellow-400" : "border-yellow-200"
-            } rounded-xl p-4 pr-10 focus:ring-2 focus:ring-yellow-300 bg-white shadow-sm transition-all text-gray-700`}
+            className={`w-full min-h-[100px] max-h-[300px] border-2 ${
+              isFocused ? "border-blue-400" : "border-blue-200"
+            } rounded-2xl p-4 pr-12 focus:ring-2 focus:ring-blue-300 bg-white shadow-sm transition-all text-gray-700 resize-y overflow-y-auto`}
             rows={3}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             maxLength={300}
           />
-          {/* Character counter */}
           {newComment.length > 0 && (
             <div
-              className={`absolute bottom-3 right-3 text-xs ${
-                newComment.length > 250 ? "text-red-400" : "text-yellow-600"
+              className={`absolute bottom-4 right-4 text-xs ${
+                newComment.length > 250 ? "text-red-500" : "text-blue-600"
               }`}
             >
               {newComment.length}/300
+              {newComment.length > 250 && (
+                <span className="ml-1">({300 - newComment.length} left)</span>
+              )}
             </div>
           )}
         </div>
 
-        <button
+        <motion.button
           type="submit"
           disabled={!newComment.trim()}
-          className={`px-5 py-3 rounded-xl font-medium flex items-center transition-all ${
+          className={`px-6 py-3 rounded-xl font-medium flex items-center justify-center transition-all ${
             newComment.trim()
-              ? "bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 shadow-md text-white"
-              : "bg-yellow-100 text-yellow-400 cursor-not-allowed"
+              ? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-md text-white"
+              : "bg-blue-100 text-blue-400 cursor-not-allowed"
           }`}
+          whileHover={newComment.trim() ? { scale: 1.02 } : {}}
+          whileTap={newComment.trim() ? { scale: 0.98 } : {}}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -86,19 +98,31 @@ export function CommentForm({
             />
           </svg>
           Quack
-        </button>
+        </motion.button>
       </div>
 
-      {/* Water ripple effect decoration */}
+      {/* Water ripple effect */}
       {isFocused && (
-        <div className="ripple-container">
+        <div className="ripple-container mt-2">
           <div className="ripple-dots">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="ripple-dot" />
+              <motion.div
+                key={i}
+                className="ripple-dot bg-blue-300"
+                animate={{
+                  scale: [1, 3],
+                  opacity: [1, 0],
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  delay: i * 0.1,
+                }}
+              />
             ))}
           </div>
         </div>
       )}
-    </form>
+    </motion.form>
   );
 }

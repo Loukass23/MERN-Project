@@ -8,6 +8,7 @@ import { CommentTree } from "./CommentTree";
 import { FunnyModal } from "../FunnyModal";
 import { CommentType } from "../../@types";
 import { API_ENDPOINTS } from "../../config/api";
+import { motion } from "motion/react";
 
 const API_BASE_URL = "http://localhost:8000/api/comments";
 
@@ -206,9 +207,15 @@ export function CommentSection({ duckId }: CommentSectionProps) {
   if (error) return <ErrorDisplay error={error} />;
 
   return (
-    <div className="mt-8 max-w-4xl mx-auto bg-gradient-to-b from-yellow-50 to-blue-50 rounded-2xl shadow-lg p-6 border-2 border-yellow-200">
-      <h2 className="text-3xl font-bold text-blue-900 mb-4 flex items-center">
+    <motion.div
+      className="mt-8 max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-blue-100"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <h2 className="text-2xl font-bold text-blue-800 mb-6 flex items-center">
         <span className="mr-2">Quack Talk</span>
+        <span className="text-blue-400">🦆</span>
       </h2>
 
       <CommentForm
@@ -220,13 +227,18 @@ export function CommentSection({ duckId }: CommentSectionProps) {
         }}
       />
 
-      <div className="space-y-4">
+      <div className="space-y-4 mt-6">
         {comments.length === 0 ? (
-          <div className="text-center py-6">
+          <motion.div
+            className="text-center py-6 bg-blue-50 rounded-xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
             <p className="text-gray-600 font-medium">
               No comments yet. Be the first to quack!
             </p>
-          </div>
+          </motion.div>
         ) : (
           comments.map((comment) => (
             <CommentTree
@@ -254,17 +266,17 @@ export function CommentSection({ duckId }: CommentSectionProps) {
       >
         <div className="text-center">
           <p className="text-lg font-medium text-gray-800 mb-2">
-            🦆 <span className="text-yellow-500">Quack Alert!</span> 🦆
+            🦆 <span className="text-blue-500">Quack Alert!</span> 🦆
           </p>
           <p className="text-sm text-gray-600">{modalMessage}</p>
           <button
             onClick={() => setShowModal(false)}
-            className="mt-4 px-4 py-1 rounded-full bg-yellow-400 text-white text-sm hover:bg-yellow-300 transition-colors"
+            className="mt-4 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm hover:from-blue-600 hover:to-blue-700 transition-colors"
           >
             Okay!
           </button>
         </div>
       </FunnyModal>
-    </div>
+    </motion.div>
   );
 }
