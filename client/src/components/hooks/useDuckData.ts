@@ -31,7 +31,7 @@ export function useDucksData(filter: string, filters: any, page: number = 1) {
         const params = new URLSearchParams({
           sort: sortParam,
           page: page.toString(),
-          limit: "12", // Fixed to 10 per page
+          limit: "12",
         });
 
         if (filters.breed) params.append("breed", filters.breed);

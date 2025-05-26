@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import Duck from "../model/ducksModel";
 import User from "../model/usersModel";
-
 import fs from "fs";
 import { Request, Response } from "express";
 import {
@@ -29,35 +28,6 @@ export const getDuckOptions = async (req: Request, res: Response) => {
   return;
 };
 
-// export const ducks = async (req: Request, res: Response) => {
-//   try {
-//     // Extract query parameters
-//     const {
-//       sort = "-uploadedAt",
-//       breed,
-//       gender,
-//       isRubberDuck,
-//       uploadedBy,
-//     } = req.query;
-
-//     // Build the filter object
-//     const filter: any = {};
-
-//     if (breed) filter.breed = breed;
-//     if (gender) filter.gender = gender;
-//     if (isRubberDuck) filter.isRubberDuck = isRubberDuck === "true";
-//     if (uploadedBy) filter.uploadedBy = uploadedBy;
-
-//     // Fetch ducks with filters and sorting
-//     const ducks = await Duck.find(filter).sort(sort as string);
-
-//     res.status(200).json({ success: true, ducks });
-//   } catch (error) {
-//     console.error("Error fetching ducks:", error);
-//     res.status(500).json({ success: false, message: "Server Error" });
-//   }
-// };
-
 export const ducks = async (req: Request, res: Response) => {
   try {
     // Extract query parameters
@@ -73,7 +43,7 @@ export const ducks = async (req: Request, res: Response) => {
 
     // Build the filter object
     const filter: any = {};
-
+    // If user select filter in the query => adds to search.
     if (breed) filter.breed = breed;
     if (gender) filter.gender = gender;
     if (isRubberDuck) filter.isRubberDuck = isRubberDuck === "true";
@@ -84,7 +54,7 @@ export const ducks = async (req: Request, res: Response) => {
     const limitNum = parseInt(limit as string);
     const skip = (pageNum - 1) * limitNum;
 
-    // Get total count of ducks (for pagination info)
+    // Get total count of ducks who match filter (for pagination info)
     const totalDucks = await Duck.countDocuments(filter);
 
     // Fetch ducks with filters, sorting, and pagination
@@ -363,8 +333,10 @@ export const deleteDuck = async (req: Request, res: Response) => {
       await pictureDelete(duck.imagePublicId);
     }
 
+    // Cleans up all user references to this duck
     await duck.deleteOne();
     await User.updateMany({ likedDucks: id }, { $pull: { likedDucks: id } });
+    // $pull removes all duck id from the array
 
     res.status(200).json({
       success: true,
@@ -396,7 +368,7 @@ export const likeDuck = async (req: Request, res: Response) => {
       return;
     }
 
-    // Add this check to prevent liking own duck
+    // check to prevent liking own duck
     if (
       duck.uploadedBy &&
       duck.uploadedBy.toString() === req.user._id.toString()
@@ -509,11 +481,13 @@ export const unlikeDuck = async (req: Request, res: Response) => {
 };
 
 export const getUserLikedDucks = async (req: Request, res: Response) => {
+  //check if user is logged in
   if (!req.user) {
     res.status(401).json({ success: false, message: "Not authenticated" });
     return;
   }
 
+  // Find user and populate their likedDucks
   try {
     const user = await User.findById(req.user._id).populate("likedDucks");
     if (!user) {
@@ -521,6 +495,7 @@ export const getUserLikedDucks = async (req: Request, res: Response) => {
       return;
     }
 
+    // Return the populated likedDucks array - frontend gets complete duck objects
     res.status(200).json({ success: true, likedDucks: user.likedDucks });
     return;
   } catch (error) {
@@ -536,6 +511,7 @@ export const checkUserLikes = async (req: Request, res: Response) => {
     return;
   }
 
+  // Extract duckIds from request body (array of duck IDs)
   const { duckIds } = req.body;
 
   if (!Array.isArray(duckIds)) {
@@ -546,6 +522,7 @@ export const checkUserLikes = async (req: Request, res: Response) => {
     return;
   }
 
+  // find user
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
@@ -553,8 +530,10 @@ export const checkUserLikes = async (req: Request, res: Response) => {
       return;
     }
 
+    // Map through requested duckIds to check which ones are liked
     const likedStatus = duckIds.map((duckId: string) => ({
       duckId,
+      // Check if this duckId exists in user's likedDucks array
       liked: user.likedDucks.some((id) => id.toString() === duckId),
     }));
 

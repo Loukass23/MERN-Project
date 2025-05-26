@@ -10,8 +10,6 @@ import { CommentType } from "../../@types";
 import { API_ENDPOINTS } from "../../config/api";
 import { motion } from "motion/react";
 
-const API_BASE_URL = "http://localhost:8000/api/comments";
-
 interface CommentSectionProps {
   duckId: string;
 }
@@ -58,7 +56,7 @@ export function CommentSection({ duckId }: CommentSectionProps) {
     return response.json();
   };
 
-  // Fetch comments on mount
+  // Fetch comments on when clicking on duckdet
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -81,7 +79,7 @@ export function CommentSection({ duckId }: CommentSectionProps) {
     fetchComments();
   }, [duckId, setComments]);
 
-  // Check authentication helper
+  // Check authentication
   const checkAuth = (action: string): boolean => {
     if (!isAuthenticated) {
       setModalMessage(`You need to log in to ${action}!`);
@@ -117,14 +115,18 @@ export function CommentSection({ duckId }: CommentSectionProps) {
     if (!checkAuth("reply to comments")) return;
 
     try {
-      const data = await makeRequest(`${API_BASE_URL}/${duckId}`, "POST", {
-        content,
-        parentCommentId,
-      });
+      const data = await makeRequest(
+        API_ENDPOINTS.COMMENTS.DUCK_COMMENTS(duckId),
+        "POST",
+        {
+          content,
+          parentCommentId,
+        }
+      );
       addReply(parentCommentId, data.comment);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to post reply");
-      throw err; // re-throw the error so CommentTree can handle it
+      throw err;
     }
   };
 

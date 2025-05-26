@@ -5,12 +5,6 @@ import {
   DUCK_MOODS,
 } from "../constants/duckOptions";
 
-// type DuckType = {
-//   id: number;
-//   name: string;
-//   image: string;
-// };
-
 const duckSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -36,7 +30,6 @@ const duckSchema = new mongoose.Schema({
   mood: { type: String, enum: DUCK_MOODS },
   isRubberDuck: { type: Boolean, default: false },
 });
-// const Duck = mongoose.model<DuckType>("Duck", duckSchema);
 const Duck = mongoose.model("Duck", duckSchema);
 export default Duck;
 //

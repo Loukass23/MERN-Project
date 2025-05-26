@@ -27,11 +27,11 @@ export default function HomePage() {
 
       <div className="relative z-10 text-center px-4 w-full max-w-4xl mx-auto">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 font-comic leading-tight">
-          Quack-tastic Adventures Await!
+          Welcome to Waddle Wonderland!
         </h1>
         <p className="text-lg sm:text-xl md:text-2xl text-white mb-6 sm:mb-8 font-sans px-2 sm:px-0">
-          Discover the most beautiful ducks from around the world in our
-          feathery collection
+          Dive beak-first into a whimsical world of dazzling ducks, charming
+          waddles, and quack-tastic discoveries from every corner of the globe.
         </p>
         <Link to="/ducks" className="inline-block">
           <button className="bg-yellow-400 hover:bg-yellow-300 text-gray-800 font-bold py-2 px-6 sm:py-3 sm:px-8 rounded-full text-base sm:text-lg md:text-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl flex items-center mx-auto">

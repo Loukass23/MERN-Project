@@ -143,7 +143,7 @@ function Register() {
                 autoComplete="username"
                 required
                 className="py-2 pl-10 block w-full rounded-full border-gray-300 shadow-sm focus:border-blue-400 focus:ring-blue-400 bg-white/70 text-gray-700 placeholder-gray-400"
-                placeholder="Duck Name"
+                placeholder="Username"
                 value={formData.username}
                 onChange={handleChange}
               />
