@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "server.ts",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "nodemon server.ts",
     "dev-all": "concurrently \"nodemon server.ts\" \"cd ../client && npm run dev\"",
