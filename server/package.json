@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "nodemon server.ts",
     "start": "concurrently \"nodemon server.ts\" \"cd ../client && npm run dev\"",
-    "build": "tsc"
+    "build": "tsc",
+    "serve": "node dist/index.js"
   },
   "type": "commonjs",
   "author": "",
