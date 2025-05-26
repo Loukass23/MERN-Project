@@ -35,7 +35,7 @@ app.use(
   })
 );
 
-// routes
+// routes //
 app.use("/api/ducks", duckRouter);
 app.use("/api/user", userRouter);
 app.use("/api/comments", commentRouter);
