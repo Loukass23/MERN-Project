@@ -35,7 +35,7 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({
     extended: true,
 }));
-// routes
+// routes //
 app.use("/api/ducks", ducks_1.default);
 app.use("/api/user", user_1.default);
 app.use("/api/comments", comments_1.default);
