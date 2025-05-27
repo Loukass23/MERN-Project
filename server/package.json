@@ -6,7 +6,7 @@
     "dev": "nodemon server.ts",
     "dev-all": "concurrently \"nodemon server.ts\" \"cd ../client && npm run dev\"",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "nodemon dist/server.js",
     "vercel-build": "npm run build"
   },
   "type": "commonjs",
